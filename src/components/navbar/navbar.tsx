@@ -1,5 +1,8 @@
+"use client";
 import Link from "next/link";
+import Image from "next/image";
 import styles from './navbar.module.css';
+import {usePathname} from "next/navigation";
 
 const links = [
     {
@@ -13,18 +16,28 @@ const links = [
 ];
 
 export default function Navbar() {
+    const pathname = usePathname();
+
     return (
         <nav className={"h-16 border-b-2 border-b-neutral-700"}>
             <div className={"container flex items-center h-full justify-between"}>
                 {/* 导航栏左侧 */}
-                <div className={"flex"}>
-                    <Link href={"/"} className={styles.linkSpan}>
-                        TestpaperAuto
-                    </Link>
+                <div className={"flex h-full items-center"}>
+                    <div className={"relative w-32 h-full"}>
+                        <Link href={"/"}>
+                            <Image
+                                src="/images/logo.png"
+                                alt="logo"
+                                layout={"fill"}
+                                objectFit="contain"
+                            />
+                        </Link>
+                    </div>
                     <ul className={"flex ml-8"}>
                         {links.map((link) => (
                             <li key={link.label} className={"mr-8"}>
-                                <Link href={link.href} className={styles.linkSpan} legacyBehavior>
+                                <Link href={link.href}
+                                      className={pathname === link.href ? `${styles.linkSpan} ${styles.selected}` : styles.linkSpan}>
                                     {link.label}
                                 </Link>
                             </li>
@@ -33,7 +46,8 @@ export default function Navbar() {
                 </div>
                 {/* 导航栏右侧 */}
                 <div>
-                    <Link href={"/login"} className={styles.linkSpan}>
+                    <Link href={"/login"}
+                          className={pathname === "/login" ? `${styles.linkSpan} ${styles.selected}` : styles.linkSpan}>
                         Login
                     </Link>
                 </div>
