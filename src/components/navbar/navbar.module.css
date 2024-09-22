@@ -1,0 +1,12 @@
+.linkSpan {
+    color: #888888;
+    transition: ease all 200ms;
+}
+
+.linkSpan:hover {
+    color: #fff;
+}
+
+.linkSpan:focus {
+    color: #0070F3;
+}
