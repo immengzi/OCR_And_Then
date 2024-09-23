@@ -1,7 +1,8 @@
 import React from "react";
 import type {Metadata} from "next";
 import "./globals.css";
-import Navbar from "@/components/navbar/navbar";
+import NavBar from "@/components/navbar/navbar";
+import FootBar from "@/components/footbar/footbar";
 
 export const metadata: Metadata = {
     title: "TestpaperAuto",
@@ -15,19 +16,19 @@ export default function RootLayout({
 }>) {
     return (
         <html lang="zh">
-            <body className={"bg-black text-sm text-white"}>
-                <header>
-                    <Navbar/>
-                </header>
-                <main>
-                    <div className={"container px-32"}>
-                        {children}
-                    </div>
-                </main>
-                <footer>
-
-                </footer>
-            </body>
+        <body className={"bg-black text-sm text-white"}>
+        <header>
+            <NavBar/>
+        </header>
+        <main>
+            <div className={"container px-32"}>
+                {children}
+            </div>
+        </main>
+        <footer>
+            <FootBar/>
+        </footer>
+        </body>
         </html>
-    );
+);
 }

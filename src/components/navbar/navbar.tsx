@@ -1,6 +1,5 @@
 "use client";
 import Link from "next/link";
-import Image from "next/image";
 import styles from './navbar.module.css';
 import {usePathname} from "next/navigation";
 
@@ -19,18 +18,13 @@ export default function Navbar() {
     const pathname = usePathname();
 
     return (
-        <nav className={"h-16 border-b-2 border-b-neutral-700"}>
+        <nav className={"h-16 shadow-[inset_0_-1px_0_rgb(51,51,51)]"}>
             <div className={"container flex items-center h-full justify-between"}>
                 {/* 导航栏左侧 */}
                 <div className={"flex h-full items-center"}>
-                    <div className={"relative w-32 h-full"}>
+                    <div>
                         <Link href={"/"}>
-                            <Image
-                                src="/images/logo.png"
-                                alt="logo"
-                                layout={"fill"}
-                                objectFit="contain"
-                            />
+                            TestpaperAuto
                         </Link>
                     </div>
                     <ul className={"flex ml-8"}>
