@@ -1,6 +1,6 @@
 "use client";
 import Link from "next/link";
-import styles from './navbar.module.css';
+import styles from './Navbar.module.css';
 import {usePathname} from "next/navigation";
 
 const links = [
@@ -11,10 +11,14 @@ const links = [
     {
         label: "Help",
         href: "/help",
+    },
+    {
+        label: "About",
+        href: "/about",
     }
 ];
 
-export default function Navbar() {
+export default function NavBar() {
     const pathname = usePathname();
 
     return (
@@ -27,11 +31,11 @@ export default function Navbar() {
                             TestpaperAuto
                         </Link>
                     </div>
-                    <ul className={"flex ml-8"}>
+                    <ul className={"flex ml-8 space-x-8"}>
                         {links.map((link) => (
-                            <li key={link.label} className={"mr-8"}>
+                            <li key={link.label} className={"text-[#888888] hover:text-white transition-all"}>
                                 <Link href={link.href}
-                                      className={pathname === link.href ? `${styles.linkSpan} ${styles.selected}` : styles.linkSpan}>
+                                      className={pathname === link.href ? `${styles.selected}` : ''}>
                                     {link.label}
                                 </Link>
                             </li>
@@ -41,7 +45,7 @@ export default function Navbar() {
                 {/* 导航栏右侧 */}
                 <div>
                     <Link href={"/login"}
-                          className={pathname === "/login" ? `${styles.linkSpan} ${styles.selected}` : styles.linkSpan}>
+                          className={pathname === "/login" ? `${styles.selected}` : ''}>
                         Login
                     </Link>
                 </div>

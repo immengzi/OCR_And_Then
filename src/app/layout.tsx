@@ -1,8 +1,8 @@
 import React from "react";
 import type {Metadata} from "next";
 import "./globals.css";
-import NavBar from "@/components/navbar/navbar";
-import FootBar from "@/components/footbar/footbar";
+import NavBar from "@/components/NavBar/NavBar";
+import FootBar from "@/components/FootBar/FootBar";
 
 export const metadata: Metadata = {
     title: "TestpaperAuto",
@@ -21,7 +21,7 @@ export default function RootLayout({
             <NavBar/>
         </header>
         <main>
-            <div className={"container px-32"}>
+            <div className={"container"}>
                 {children}
             </div>
         </main>
