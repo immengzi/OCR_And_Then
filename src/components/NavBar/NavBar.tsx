@@ -26,6 +26,10 @@ const userLinks = [
         href: "/settings",
     },
     {
+        label: 'History',
+        href: '/history'
+    },
+    {
         label: "Logout",
         href: "/logout",
     }
@@ -62,7 +66,7 @@ export default function NavBar() {
                         ))}
                     </ul>
                 </div>
-                <a className="btn btn-ghost text-xl">TestpaperAuto</a>
+                <Link href={'/'} className="btn btn-ghost text-xl">TestpaperAuto</Link>
             </div>
             <div className="navbar-center hidden lg:flex">
                 <ul className="menu menu-horizontal px-1">
