@@ -16,18 +16,14 @@ export default function RootLayout({
 }>) {
     return (
         <html lang="zh">
-        <body className={"bg-black text-sm text-white"}>
+        <body>
         <header>
             <NavBar/>
         </header>
         <main>
-            <div className={"container"}>
-                {children}
-            </div>
+            {children}
         </main>
-        <footer>
-            <FootBar/>
-        </footer>
+        <FootBar/>
         </body>
         </html>
 );

@@ -1,55 +1,102 @@
 "use client";
 import Link from "next/link";
-import styles from './Navbar.module.css';
-import {usePathname} from "next/navigation";
 
 const links = [
     {
-        label: "Home",
+        label: "Intro",
         href: "/",
+    },
+    {
+        label: "Play",
+        href: "/play",
     },
     {
         label: "Help",
         href: "/help",
+    }
+];
+
+const userLinks = [
+    {
+        label: "Profile",
+        href: "/profile",
     },
     {
-        label: "About",
-        href: "/about",
+        label: "Settings",
+        href: "/settings",
+    },
+    {
+        label: "Logout",
+        href: "/logout",
     }
 ];
 
 export default function NavBar() {
-    const pathname = usePathname();
-
     return (
-        <nav className={"h-16 shadow-[inset_0_-1px_0_rgb(51,51,51)]"}>
-            <div className={"container flex items-center h-full justify-between"}>
-                {/* 导航栏左侧 */}
-                <div className={"flex h-full items-center"}>
-                    <div>
-                        <Link href={"/"}>
-                            TestpaperAuto
-                        </Link>
+        <div className="navbar bg-base-100">
+            <div className="navbar-start">
+                <div className="dropdown">
+                    <div tabIndex={0} role="button" className="btn btn-ghost lg:hidden">
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            className="h-5 w-5"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor">
+                            <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth="2"
+                                d="M4 6h16M4 12h8m-8 6h16"/>
+                        </svg>
                     </div>
-                    <ul className={"flex ml-8 space-x-8"}>
-                        {links.map((link) => (
-                            <li key={link.label} className={"text-[#888888] hover:text-white transition-all"}>
-                                <Link href={link.href}
-                                      className={pathname === link.href ? `${styles.selected}` : ''}>
+                    <ul
+                        tabIndex={0}
+                        className="menu menu-sm dropdown-content bg-base-100 rounded-box z-[1] mt-3 w-52 p-2 shadow">
+                        {links.map(link => (
+                            <li key={link.label}>
+                                <Link href={link.href}>
                                     {link.label}
                                 </Link>
                             </li>
                         ))}
                     </ul>
                 </div>
-                {/* 导航栏右侧 */}
-                <div>
-                    <Link href={"/login"}
-                          className={pathname === "/login" ? `${styles.selected}` : ''}>
-                        Login
-                    </Link>
+                <a className="btn btn-ghost text-xl">TestpaperAuto</a>
+            </div>
+            <div className="navbar-center hidden lg:flex">
+                <ul className="menu menu-horizontal px-1">
+                    {links.map(link => (
+                        <li key={link.label}>
+                            <Link href={link.href}>
+                                {link.label}
+                            </Link>
+                        </li>
+                    ))}
+                </ul>
+            </div>
+            <div className="navbar-end">
+                <div className="dropdown dropdown-end">
+                    <div tabIndex={0} role="button" className="btn btn-ghost btn-circle avatar">
+                        <div className="w-10 rounded-full">
+                            <img
+                                alt="Tailwind CSS Navbar component"
+                                src="https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp"/>
+                        </div>
+                    </div>
+                    <ul
+                        tabIndex={0}
+                        className="menu menu-sm dropdown-content bg-base-100 rounded-box z-[1] mt-3 w-52 p-2 shadow">
+                        {userLinks.map(userLink => (
+                            <li key={userLink.label}>
+                                <Link href={userLink.href}>
+                                    {userLink.label}
+                                </Link>
+                            </li>
+                        ))}
+                    </ul>
                 </div>
             </div>
-        </nav>
+        </div>
     );
 }

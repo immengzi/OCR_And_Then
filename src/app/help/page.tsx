@@ -1,4 +1,4 @@
-export default function Page() {
+export default function Help() {
     return (
         <div>
             help
