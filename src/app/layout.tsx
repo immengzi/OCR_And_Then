@@ -3,6 +3,7 @@ import type {Metadata} from "next";
 import "./globals.css";
 import NavBar from "@/components/NavBar/NavBar";
 import FootBar from "@/components/FootBar/FootBar";
+import {ThemeProvider} from "@/context/ThemeContext";
 
 export const metadata: Metadata = {
     title: "TestpaperAuto",
@@ -15,16 +16,18 @@ export default function RootLayout({
     children: React.ReactNode;
 }>) {
     return (
-        <html lang="zh">
-        <body>
-        <header>
-            <NavBar/>
-        </header>
-        <main className={"min-h-screen"}>
-            {children}
-        </main>
-        <FootBar/>
-        </body>
-        </html>
-);
+        <ThemeProvider>
+            <html lang="zh">
+            <body>
+            <header>
+                <NavBar/>
+            </header>
+            <main className={"min-h-screen"}>
+                {children}
+            </main>
+            <FootBar/>
+            </body>
+            </html>
+        </ThemeProvider>
+    );
 }

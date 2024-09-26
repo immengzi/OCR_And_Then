@@ -1,6 +1,6 @@
 export default function Help() {
     return (
-        <div className="flex items-center justify-center min-h-screen">
+        <div className="flex items-center justify-center min-h-screen px-9 pb-16">
             <div className="w-full max-w-3xl">
                 <div className="chat chat-start">
                     <div className="chat-bubble chat-bubble-primary">

@@ -1,25 +1,7 @@
-const ocrConfigs = [
-    {name: '百度云 OCR API KEY', placeholder: ''},
-    {name: '百度云 OCR SECRET KEY', placeholder: ''},
-    {name: 'GPT API URL', placeholder: 'e.g. https://api.openai.com/v1'},
-    {name: 'GPT API KEY', placeholder: ''}
-];
-
 export default function Play() {
     return (
         <form>
-            <div className="flex flex-col justify-center gap-5 p-9">
-                {ocrConfigs.map(config => (
-                    <div className="flex justify-center items-center flex-col gap-3" key={config.name}>
-                        <h2>{config.name}</h2>
-                        <input
-                            type="text"
-                            placeholder={config.placeholder}
-                            className="input input-bordered input-primary w-full max-w-lg"
-                            required={true}
-                        />
-                    </div>
-                ))}
+            <div className="flex flex-col justify-center min-h-screen gap-5 px-9 pb-16">
                 {/* Button with loading spinner and text */}
                 <div className="flex items-center flex-col gap-3">
                     <h2>GPT API MODEL</h2>
@@ -35,7 +17,8 @@ export default function Play() {
                     <h2>要处理的 PDF 路径</h2>
                     <input
                         type="file"
-                        accept="application/pdf"
+                        accept="application/pdf, image/*"
+                        capture={"environment"}
                         className="file-input file-input-bordered file-input-primary w-full max-w-lg"
                         required={true}
                     />
