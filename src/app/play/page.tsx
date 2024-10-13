@@ -1,11 +1,11 @@
 export default function Play() {
     return (
-        <form>
-            <div className="flex flex-col justify-center min-h-screen gap-5 px-9 pb-16">
+        <div className="flex flex-col justify-center min-h-screen px-9 pb-16 max-w-lg mx-auto">
+            <form className='space-y-6'>
                 {/* Button with loading spinner and text */}
                 <div className="flex items-center flex-col gap-3">
                     <h2>GPT API MODEL</h2>
-                    <select className="select select-primary w-full max-w-lg">
+                    <select className="select select-primary w-full">
                         <option value={"gpt-4o-mini"}>gpt-4o-mini</option>
                         <option>gpt-4o</option>
                         <option>gpt-4-turbo</option>
@@ -19,7 +19,7 @@ export default function Play() {
                         type="file"
                         accept="application/pdf, image/*"
                         capture={"environment"}
-                        className="file-input file-input-bordered file-input-primary w-full max-w-lg"
+                        className="file-input file-input-bordered file-input-primary w-full"
                         required={true}
                     />
                 </div>
@@ -45,7 +45,8 @@ export default function Play() {
                         提交
                     </button>
                 </div>
-            </div>
-        </form>
+            </form>
+        </div>
+
     );
 }

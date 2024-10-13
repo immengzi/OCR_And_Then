@@ -1,6 +1,7 @@
 "use client";
 import Link from "next/link";
 import {useTheme} from "@/context/ThemeContext";
+import {useUser} from "@/context/UserContext";
 
 const links = [
     {label: "Intro", href: "/"},
@@ -15,8 +16,11 @@ const userLinks = [
     {label: "Logout", href: "/logout"}
 ];
 
+const loginLink = {label: "Login", href: "/login"};
+
 export default function NavBar() {
-    const [theme, setTheme] = useTheme();
+    const {theme, setTheme} = useTheme();
+    const {currentUser, setCurrentUser} = useUser();
 
     const handleThemeChange = (newTheme) => {
         setTheme(newTheme);
@@ -93,7 +97,7 @@ export default function NavBar() {
             <div className="navbar-end">
                 <div className="dropdown dropdown-end">
                     <div tabIndex={0} role="button" className="btn btn-ghost btn-circle avatar">
-                    <div className="w-10 rounded-full">
+                        <div className="w-10 rounded-full">
                             <img
                                 alt="Tailwind CSS Navbar component"
                                 src="https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp"/>
@@ -102,13 +106,21 @@ export default function NavBar() {
                     <ul
                         tabIndex={0}
                         className="menu dropdown-content bg-base-100 rounded-box z-[1] mt-3 w-32 p-2 shadow">
-                        {userLinks.map(userLink => (
-                            <li key={userLink.label}>
-                                <Link href={userLink.href}>
-                                    {userLink.label}
+                        {currentUser ? (
+                            userLinks.map(userLink => (
+                                <li key={userLink.label}>
+                                    <Link href={userLink.href}>
+                                        {userLink.label}
+                                    </Link>
+                                </li>
+                            ))
+                        ) : (
+                            <li key={loginLink.label}>
+                                <Link href={loginLink.href}>
+                                    {loginLink.label}
                                 </Link>
                             </li>
-                        ))}
+                        )}
                     </ul>
                 </div>
             </div>
