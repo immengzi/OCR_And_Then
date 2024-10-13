@@ -10,13 +10,12 @@ const links = [
 ];
 
 const userLinks = [
-    {label: "Profile", href: "/profile"},
-    {label: "Settings", href: "/settings"},
-    {label: 'History', href: '/history'},
-    {label: "Logout", href: "/logout"}
+    {label: "Profile", href: "/user/profile"},
+    {label: "Settings", href: "/user/settings"},
+    {label: 'History', href: '/user/history'}
 ];
 
-const loginLink = {label: "Login", href: "/login"};
+const loginLink = {label: "Login", href: "/account/login"};
 
 export default function NavBar() {
     const {theme, setTheme} = useTheme();
