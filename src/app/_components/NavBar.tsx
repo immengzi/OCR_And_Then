@@ -1,7 +1,8 @@
 "use client";
 import Link from "next/link";
 import {useTheme} from "@/context/ThemeContext";
-import {useUser} from "@/context/UserContext";
+import {useUserService} from "@/app/_services/useUserService";
+import {useEffect, useState} from "react";
 
 const links = [
     {label: "Intro", href: "/"},
@@ -16,14 +17,30 @@ const userLinks = [
 ];
 
 const loginLink = {label: "Login", href: "/account/login"};
+const logoutLink = {label: "Logout", href: "/account/logout"};
 
 export default function NavBar() {
+    // Theme
     const {theme, setTheme} = useTheme();
-    const {currentUser, setCurrentUser} = useUser();
 
     const handleThemeChange = (newTheme) => {
         setTheme(newTheme);
     };
+
+    // user state store
+    const [loggingOut, setLoggingOut] = useState<boolean>(false);
+    const userService = useUserService();
+    const user = userService.currentUser;
+
+    useEffect(() => {
+        userService.getCurrent();
+    }, []);
+
+    async function logout() {
+        setLoggingOut(true);
+        await userService.logout();
+        setLoggingOut(false);
+    }
 
     return (
         <div className="navbar bg-base-100">
@@ -105,18 +122,34 @@ export default function NavBar() {
                     <ul
                         tabIndex={0}
                         className="menu dropdown-content bg-base-100 rounded-box z-[1] mt-3 w-32 p-2 shadow">
-                        {currentUser ? (
-                            userLinks.map(userLink => (
-                                <li key={userLink.label}>
-                                    <Link href={userLink.href}>
-                                        {userLink.label}
-                                    </Link>
+                        {user ? (
+                            <>
+                                {userLinks.map(userLink => (
+                                    <li key={userLink.label}>
+                                        <Link href={userLink.href}>
+                                            <span>{userLink.label}</span>
+                                        </Link>
+                                    </li>
+                                ))}
+                                <li key={logoutLink.label}>
+                                    <a href={logoutLink.href} onClick={async (e) => {
+                                        e.preventDefault();
+                                        if (!loggingOut) {
+                                            await logout();
+                                        }
+                                    }}>
+                                        {loggingOut ? (
+                                            <span className="loading loading-infinity loading-sm"></span>
+                                        ) : (
+                                            <span>Logout</span>
+                                        )}
+                                    </a>
                                 </li>
-                            ))
+                            </>
                         ) : (
                             <li key={loginLink.label}>
                                 <Link href={loginLink.href}>
-                                    {loginLink.label}
+                                    <span>{loginLink.label}</span>
                                 </Link>
                             </li>
                         )}
