@@ -1,7 +1,7 @@
-import { cookies } from 'next/headers';
+import {cookies} from 'next/headers';
 import joi from 'joi';
-import { apiHandler } from "@/app/_helpers/server/api/api-handler";
-import { usersRepo } from "@/app/_helpers/server/users-repo";
+import {apiHandler} from "@/app/_helpers/server/api";
+import {usersRepo} from "@/app/_helpers/server";
 
 module.exports = apiHandler({
     POST: login
@@ -9,10 +9,10 @@ module.exports = apiHandler({
 
 async function login(req: Request) {
     const body = await req.json();
-    const { user, token } = await usersRepo.authenticate(body);
+    const {user, token} = await usersRepo.authenticate(body);
 
     // return jwt token in http only cookie
-    cookies().set('authorization', token, { httpOnly: true });
+    cookies().set('authorization', token, {httpOnly: true});
 
     return user;
 }

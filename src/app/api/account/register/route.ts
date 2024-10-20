@@ -1,6 +1,6 @@
 import joi from 'joi';
-import {apiHandler} from "@/app/_helpers/server/api/api-handler";
-import {usersRepo} from "@/app/_helpers/server/users-repo";
+import {apiHandler} from "@/app/_helpers/server/api";
+import {usersRepo} from "@/app/_helpers/server";
 
 module.exports = apiHandler({
     POST: register

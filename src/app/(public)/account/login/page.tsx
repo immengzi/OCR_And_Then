@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import {useForm} from 'react-hook-form';
-import {useUserService} from "@/app/_services/useUserService";
+import {useUserService} from "@/app/_services";
 
 const registerLink = {label: "Register", href: "/account/register"};
 const forgetpwdLink = {label: "Forgetpwd", href: "/account/forgetpwd"};

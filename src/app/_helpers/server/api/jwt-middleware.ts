@@ -1,7 +1,7 @@
-import { NextRequest } from 'next/server';
-import { auth } from "@/app/_helpers/server/auth";
+import {NextRequest} from 'next/server';
+import {auth} from "@/app/_helpers/server";
 
-export { jwtMiddleware };
+export {jwtMiddleware};
 
 async function jwtMiddleware(req: NextRequest) {
     if (isPublicPath(req))

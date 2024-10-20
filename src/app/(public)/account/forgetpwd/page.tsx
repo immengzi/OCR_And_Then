@@ -1,5 +1,5 @@
 export default function Forgetpwd() {
-    return(
+    return (
         <div>
             Under construction
         </div>

@@ -1,6 +1,6 @@
-import { useRouter } from 'next/navigation';
+import {useRouter} from 'next/navigation';
 
-export { useFetch };
+export {useFetch};
 
 function useFetch() {
     const router = useRouter();
@@ -18,7 +18,7 @@ function useFetch() {
                 method
             };
             if (body) {
-                requestOptions.headers = { 'Content-Type': 'application/json' };
+                requestOptions.headers = {'Content-Type': 'application/json'};
                 requestOptions.body = JSON.stringify(body);
             }
             return fetch(url, requestOptions).then(handleResponse);

@@ -1,6 +1,6 @@
 import joi from 'joi';
 
-export { validateMiddleware };
+export {validateMiddleware};
 
 async function validateMiddleware(req: Request, schema: joi.ObjectSchema) {
     if (!schema) return;
@@ -12,7 +12,7 @@ async function validateMiddleware(req: Request, schema: joi.ObjectSchema) {
     };
 
     const body = await req.json();
-    const { error, value } = schema.validate(body, options);
+    const {error, value} = schema.validate(body, options);
 
     if (error) {
         throw `Validation error: ${error.details.map(x => x.message).join(', ')}`;

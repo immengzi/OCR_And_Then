@@ -1,25 +1,25 @@
-import { create } from 'zustand';
+import {create} from 'zustand';
 
-export { useAlertService };
+export {useAlertService};
 
 // alert state store
 const alertStore = create<IAlertStore>(() => ({}));
 
 function useAlertService(): IAlertService {
-    const { alert } = alertStore();
+    const {alert} = alertStore();
 
     return {
         alert,
         success: (message: string, showAfterRedirect = false) => {
             const type = 'alert-success';
             alertStore.setState({
-                alert: { type, message, showAfterRedirect }
+                alert: {type, message, showAfterRedirect}
             });
         },
         error: (message: string, showAfterRedirect = false) => {
             const type = 'alert-danger';
             alertStore.setState({
-                alert: { type, message, showAfterRedirect }
+                alert: {type, message, showAfterRedirect}
             });
         },
         clear: () => {
@@ -34,7 +34,7 @@ function useAlertService(): IAlertService {
                     alert = undefined;
                 }
 
-                return { alert };
+                return {alert};
             });
         }
     }

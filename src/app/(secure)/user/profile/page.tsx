@@ -1,4 +1,5 @@
 'use client';
+
 import {useUserService} from "@/app/_services";
 import {Spinner} from "@/app/_components/Spinner";
 
@@ -14,6 +15,6 @@ export default function Profile() {
             </>
         );
     } else {
-        return <Spinner />;
+        return <Spinner/>;
     }
 }

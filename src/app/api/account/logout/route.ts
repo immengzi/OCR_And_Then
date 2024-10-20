@@ -1,5 +1,5 @@
-import { cookies } from 'next/headers';
-import { apiHandler } from "@/app/_helpers/server/api/api-handler";
+import {cookies} from 'next/headers';
+import {apiHandler} from "@/app/_helpers/server/api";
 
 
 module.exports = apiHandler({

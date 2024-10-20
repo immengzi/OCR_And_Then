@@ -1,4 +1,4 @@
-export { Spinner };
+export {Spinner};
 
 function Spinner() {
     return (

@@ -1,10 +1,10 @@
 'use client';
 
-import { useEffect } from 'react';
-import { usePathname } from 'next/navigation';
-import { useAlertService } from "@/app/_services/useAlertService";
+import {useEffect} from 'react';
+import {usePathname} from 'next/navigation';
+import {useAlertService} from "@/app/_services";
 
-export { Alert };
+export {Alert};
 
 function Alert() {
     const pathname = usePathname();

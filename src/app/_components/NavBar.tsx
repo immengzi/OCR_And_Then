@@ -1,7 +1,8 @@
 "use client";
+
 import Link from "next/link";
 import {useTheme} from "@/context/ThemeContext";
-import {useUserService} from "@/app/_services/useUserService";
+import {useUserService} from "@/app/_services";
 import {useEffect, useState} from "react";
 
 const links = [

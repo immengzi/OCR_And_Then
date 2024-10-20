@@ -1,9 +1,9 @@
-import { create } from 'zustand';
-import { useRouter, useSearchParams } from 'next/navigation';
-import { useAlertService } from "@/app/_services/useAlertService";
-import { useFetch } from "@/app/_helpers/client/useFetch";
+import {create} from 'zustand';
+import {useRouter, useSearchParams} from 'next/navigation';
+import {useAlertService} from "@/app/_services";
+import {useFetch} from "@/app/_helpers/client";
 
-export { useUserService };
+export {useUserService};
 
 // user state store
 const initialState = {
@@ -18,7 +18,7 @@ function useUserService(): IUserService {
     const fetch = useFetch();
     const router = useRouter();
     const searchParams = useSearchParams();
-    const { users, user, currentUser } = userStore();
+    const {users, user, currentUser} = userStore();
 
     return {
         users,
@@ -27,8 +27,8 @@ function useUserService(): IUserService {
         login: async (email, password) => {
             alertService.clear();
             try {
-                const currentUser = await fetch.post('/api/account/login', { email, password });
-                userStore.setState?.({ ...initialState, currentUser });
+                const currentUser = await fetch.post('/api/account/login', {email, password});
+                userStore.setState?.({...initialState, currentUser});
 
                 // get return url from query parameters or default to '/'
                 const returnUrl = searchParams.get('returnUrl') || '/';
@@ -39,7 +39,7 @@ function useUserService(): IUserService {
         },
         logout: async () => {
             await fetch.post('/api/account/logout');
-            userStore.setState({ currentUser: undefined });
+            userStore.setState({currentUser: undefined});
             router.push('/account/login');
         },
         register: async (user) => {
@@ -52,19 +52,19 @@ function useUserService(): IUserService {
             }
         },
         getAll: async () => {
-            userStore.setState({ users: await fetch.get('/api/users') });
+            userStore.setState({users: await fetch.get('/api/users')});
         },
         getById: async (id) => {
-            userStore.setState({ user: undefined });
+            userStore.setState({user: undefined});
             try {
-                userStore.setState({ user: await fetch.get(`/api/users/${id}`) });
+                userStore.setState({user: await fetch.get(`/api/users/${id}`)});
             } catch (error: any) {
                 alertService.error(error);
             }
         },
         getCurrent: async () => {
             if (!currentUser) {
-                userStore.setState({ currentUser: await fetch.get('/api/user/current') });
+                userStore.setState({currentUser: await fetch.get('/api/user/current')});
             }
         },
         create: async (user) => {
@@ -75,14 +75,16 @@ function useUserService(): IUserService {
 
             // update current user if the user updated their own record
             if (id === currentUser?.id) {
-                userStore.setState({ currentUser: { ...currentUser, ...params } })
+                userStore.setState({currentUser: {...currentUser, ...params}})
             }
         },
         delete: async (id) => {
             // set isDeleting prop to true on user
             userStore.setState({
                 users: users!.map(x => {
-                    if (x.id === id) { x.isDeleting = true; }
+                    if (x.id === id) {
+                        x.isDeleting = true;
+                    }
                     return x;
                 })
             });
@@ -91,7 +93,7 @@ function useUserService(): IUserService {
             const response = await fetch.delete(`/api/users/${id}`);
 
             // remove deleted user from state
-            userStore.setState({ users: users!.filter(x => x.id !== id) });
+            userStore.setState({users: users!.filter(x => x.id !== id)});
 
             // logout if the user deleted their own record
             if (response.deletedSelf) {

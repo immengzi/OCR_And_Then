@@ -1,8 +1,7 @@
-import { NextRequest, NextResponse } from 'next/server';
+import {NextRequest, NextResponse} from 'next/server';
+import {errorHandler, jwtMiddleware, validateMiddleware} from './';
 
-import { errorHandler, jwtMiddleware, validateMiddleware } from './';
-
-export { apiHandler };
+export {apiHandler};
 
 function apiHandler(handler: any) {
     const wrappedHandler: any = {};
@@ -18,7 +17,8 @@ function apiHandler(handler: any) {
                 // monkey patch req.json() because it can only be called once
                 const json = await req.json();
                 req.json = () => json;
-            } catch {}
+            } catch {
+            }
 
             try {
                 // global middleware
