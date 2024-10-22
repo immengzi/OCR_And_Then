@@ -20,20 +20,15 @@ const loginLink = {label: "Login", href: "/account/login"};
 const logoutLink = {label: "Logout", href: "/account/logout"};
 
 export default function NavBar() {
-    // Theme
-    const {theme, setTheme} = useTheme();
+    const {toggleTheme} = useTheme();
+    const handleThemeChange = toggleTheme;
 
-    const handleThemeChange = (newTheme) => {
-        setTheme(newTheme);
-    };
-
-    // user state store
     const [loggingOut, setLoggingOut] = useState<boolean>(false);
     const userService = useUserService();
     const user = userService.currentUser;
 
     useEffect(() => {
-        userService.getCurrent();
+        userService.getCurrent().catch(() => {});
     }, []);
 
     async function logout() {

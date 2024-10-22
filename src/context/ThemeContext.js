@@ -1,19 +1,24 @@
 "use client";
-import {createContext, useContext, useEffect, useState} from "react";
+import {createContext, useContext, useState} from "react";
 
 const ThemeContext = createContext();
 
-export const ThemeProvider = ({children}) => {
-    const initialTheme = window.localStorage.getItem("theme") || "dark";
-    const [theme, setTheme] = useState(initialTheme);
+export const ThemeProvider = ({theme, children}) => {
+    const [currentTheme, setTheme] = useState(theme);
 
-    useEffect(() => {
-        document.documentElement.setAttribute("data-theme", theme);
-        window.localStorage.setItem("theme", theme);
-    }, [theme]);
+    const themeSwitchHandler = (newTheme) => {
+        setTheme(newTheme);
+        document.cookie = `theme=${newTheme}; path=/; max-age=31536000`;
+        document.documentElement.setAttribute('data-theme', newTheme);
+    };
 
     return (
-        <ThemeContext.Provider value={{theme, setTheme}}>
+        <ThemeContext.Provider
+            value={{
+                theme: currentTheme,
+                toggleTheme: themeSwitchHandler
+            }}
+        >
             {children}
         </ThemeContext.Provider>
     );
