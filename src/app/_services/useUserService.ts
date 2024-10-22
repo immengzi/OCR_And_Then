@@ -110,6 +110,7 @@ interface IUser {
     email: string,
     username: string,
     password: string,
+    role: 'User' | 'Admin';
     isDeleting?: boolean
 }
 

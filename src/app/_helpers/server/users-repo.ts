@@ -53,10 +53,15 @@ async function getCurrent() {
 }
 
 async function create(params: any) {
+    const existingUsers = await User.find();
+    const role = existingUsers.length === 0 ? 'Admin' : 'User';
+
     // validate
     if (await User.findOne({email: params.email})) {
         throw 'Email "' + params.email + '" is already taken';
     }
+
+    params.role = role;
 
     const user = new User(params);
 

@@ -13,7 +13,6 @@ const links = [
 
 const userLinks = [
     {label: "Profile", href: "/user/profile"},
-    {label: "Settings", href: "/user/settings"},
     {label: 'History', href: '/user/history'}
 ];
 
