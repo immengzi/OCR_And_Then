@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import {useForm} from 'react-hook-form';
 import {useUserService} from "@/app/_services";
+import InputField from "@/app/_components/Input";
 
 const registerLink = {label: "Register", href: "/account/register"};
 const forgetpwdLink = {label: "Forgetpwd", href: "/account/forgetpwd"};
@@ -26,8 +27,8 @@ function Login() {
     }
 
     return (
-        <div className="flex flex-col justify-center min-h-screen gap-5 px-9 pb-16 w-full max-w-lg mx-auto">
-            <h2 className="mx-auto text-3xl font-bold">Login</h2>
+        <>
+            <h2 className="text-3xl font-bold">Login</h2>
             <form onSubmit={handleSubmit(onSubmit)}>
                 <div className="form-control">
                     <label className="label">
@@ -39,9 +40,12 @@ function Login() {
                             <path
                                 d="M.05 3.555A2 2 0 0 1 2 2h12a2 2 0 0 1 1.95 1.555L8 8.414zM0 4.697v7.104l5.803-3.558zM6.761 8.83l-6.57 4.027A2 2 0 0 0 2 14h12a2 2 0 0 0 1.808-1.144l-6.57-4.027L8 9.586zm3.436-.586L16 11.801V4.697z"/>
                         </svg>
-                        <input {...fields.email} type="email"
-                               className={`grow form-control ${errors.email ? 'is-invalid' : ''}`}
-                               placeholder="email@example.com"/>
+                        <InputField
+                            field={fields.email}
+                            type="email"
+                            placeholder="email@example.com"
+                            error={errors.email}
+                        />
                         <div className="invalid-feedback">{errors.email?.message?.toString()}</div>
                     </label>
                 </div>
@@ -55,9 +59,12 @@ function Login() {
                             <path
                                 d="M3.5 11.5a3.5 3.5 0 1 1 3.163-5H14L15.5 8 14 9.5l-1-1-1 1-1-1-1 1-1-1-1 1H6.663a3.5 3.5 0 0 1-3.163 2M2.5 9a1 1 0 1 0 0-2 1 1 0 0 0 0 2"/>
                         </svg>
-                        <input {...fields.password} type="password"
-                               className={`grow form-control ${errors.password ? 'is-invalid' : ''}`}
-                               placeholder="Enter password"/>
+                        <InputField
+                            field={fields.password}
+                            type="password"
+                            placeholder="Enter password"
+                            error={errors.password}
+                        />
                         <div className="invalid-feedback">{errors.password?.message?.toString()}</div>
                     </label>
                     <label className="label">
@@ -80,6 +87,6 @@ function Login() {
                     Sign up now
                 </Link>
             </div>
-        </div>
+        </>
     );
 }

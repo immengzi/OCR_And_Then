@@ -1,6 +1,6 @@
 export default function Play() {
     return (
-        <div className="flex flex-col justify-center min-h-screen px-9 pb-16 max-w-lg mx-auto">
+        <div className="max-w-lg w-full">
             <form className='space-y-6'>
                 {/* Button with loading spinner and text */}
                 <div className="flex items-center flex-col gap-3">

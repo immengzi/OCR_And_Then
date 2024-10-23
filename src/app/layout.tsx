@@ -5,6 +5,7 @@ import NavBar from "@/app/_components/NavBar";
 import FootBar from "@/app/_components/FootBar";
 import {ThemeProvider} from "@/context/ThemeContext";
 import {cookies} from "next/headers";
+import {Alert} from "@/app/_components/Alert";
 
 export const metadata: Metadata = {
     title: "TestpaperAuto",
@@ -25,7 +26,8 @@ export default function RootLayout({children}: Readonly<{ children: React.ReactN
             <header>
                 <NavBar/>
             </header>
-            <main className={"min-h-screen"}>
+            <main className="flex flex-col justify-center items-center min-h-screen">
+                <Alert/>
                 {children}
             </main>
             <FootBar/>

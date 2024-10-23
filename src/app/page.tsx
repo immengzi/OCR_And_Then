@@ -2,7 +2,7 @@ import Link from "next/link";
 
 export default function Page() {
     return (
-        <div className="hero bg-base-200 min-h-screen px-9 pb-16">
+        <div className="hero bg-base-200 min-h-screen">
             <div className="hero-content text-center">
                 <div className="max-w-md">
                     <h1 className="mb-6 text-5xl font-bold">
