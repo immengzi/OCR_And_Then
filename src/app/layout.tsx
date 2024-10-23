@@ -21,12 +21,12 @@ export default function RootLayout({children}: Readonly<{ children: React.ReactN
 
     return (
         <html lang="zh" data-theme={theme}>
-        <body>
+        <body className="flex flex-col">
         <ThemeProvider theme={theme}>
             <header>
                 <NavBar/>
             </header>
-            <main className="flex flex-col justify-center items-center min-h-screen">
+            <main className="flex flex-col justify-center items-center grow">
                 <Alert/>
                 {children}
             </main>
