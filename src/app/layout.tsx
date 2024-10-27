@@ -8,8 +8,6 @@ import {cookies} from "next/headers";
 import {Alert} from "@/components/ui/Alert";
 import {init} from './init';
 
-// 在根布局组件中初始化
-init().catch(console.error);
 export const metadata: Metadata = {
     title: "TestpaperAuto",
     description: "Using Baidu Cloud OCR for text recognition and GPT for location correction, extract the text from the exam PDF and then further generate reference answers using GPT.",
@@ -27,9 +25,10 @@ export const metadata: Metadata = {
     ],
 };
 
-export default function RootLayout({children}: Readonly<{ children: React.ReactNode; }>) {
+export default async function RootLayout({children}: Readonly<{ children: React.ReactNode; }>) {
     const cookieStore = cookies();
     const theme = cookieStore.get('theme')?.value ?? 'dark';
+    await init().catch(console.error);
 
     return (
         <html lang="zh" data-theme={theme}>

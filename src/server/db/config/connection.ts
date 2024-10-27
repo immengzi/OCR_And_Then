@@ -1,31 +1,47 @@
 import mongoose from 'mongoose';
 
-const MONGODB_URI = process.env.MONGODB_URI!;
-const MAX_POOL_SIZE = 10; // 根据需求调整
-
-interface ConnectionPool {
-    isConnected?: number;
+declare global {
+    let mongoose: {
+        conn: typeof mongoose | null;
+        promise: Promise<typeof mongoose> | null;
+    };
 }
 
-const connectionPool: ConnectionPool = {};
+// 在全局对象上初始化mongoose属性
+if (!global.mongoose) {
+    global.mongoose = {
+        conn: null,
+        promise: null
+    };
+}
+
+const MONGODB_URI = process.env.MONGODB_URI!;
+
+const MAX_POOL_SIZE = 10;
 
 async function dbConnect() {
-    // 如果已经连接，直接返回
-    if (connectionPool.isConnected) {
+    // 如果已经存在连接，直接返回
+    if (global.mongoose.conn) {
         console.log('Using existing connection');
-        return;
+        return global.mongoose.conn;
     }
 
-    try {
-        const db = await mongoose.connect(MONGODB_URI, {
-            maxPoolSize: MAX_POOL_SIZE,
-            minPoolSize: 5, // 保持最小连接数
-            connectTimeoutMS: 10000, // 连接超时时间
-            socketTimeoutMS: 45000, // Socket 超时时间
-        });
+    // 如果正在建立连接，返回promise
+    if (global.mongoose.promise) {
+        console.log('Using existing connection promise');
+        return global.mongoose.promise;
+    }
 
-        connectionPool.isConnected = db.connections?.[0].readyState;
-        console.log('New database connection established');
+    // 创建新连接
+    global.mongoose.promise = mongoose.connect(MONGODB_URI, {
+        maxPoolSize: MAX_POOL_SIZE,
+        minPoolSize: 5,
+        connectTimeoutMS: 10000,
+        socketTimeoutMS: 45000,
+    });
+
+    try {
+        global.mongoose.conn = await global.mongoose.promise;
 
         // 监听连接事件
         mongoose.connection.on('connected', () => {
@@ -34,23 +50,50 @@ async function dbConnect() {
 
         mongoose.connection.on('error', (err) => {
             console.log('MongoDB connection error:', err);
+            global.mongoose.conn = null;
+            global.mongoose.promise = null;
         });
 
         mongoose.connection.on('disconnected', () => {
             console.log('MongoDB disconnected');
-            // 可以在这里添加重连逻辑
+            global.mongoose.conn = null;
+            global.mongoose.promise = null;
         });
 
-        // 优雅关闭连接
-        process.on('SIGINT', async () => {
-            await mongoose.connection.close();
-            process.exit(0);
-        });
+        // 处理进程退出
+        const cleanup = async () => {
+            try {
+                await mongoose.connection.close();
+                global.mongoose.conn = null;
+                global.mongoose.promise = null;
+                process.exit(0);
+            } catch (err) {
+                console.error('Error during cleanup:', err);
+                process.exit(1);
+            }
+        };
+
+        process.on('SIGINT', cleanup);
+        process.on('SIGTERM', cleanup);
+
+        console.log('New database connection established');
+        return global.mongoose.conn;
 
     } catch (error) {
+        global.mongoose.conn = null;
+        global.mongoose.promise = null;
         console.error('MongoDB connection error:', error);
         throw error;
     }
 }
+
+// 导出清理函数供外部使用
+export const closeConnection = async () => {
+    if (global.mongoose.conn) {
+        await mongoose.connection.close();
+        global.mongoose.conn = null;
+        global.mongoose.promise = null;
+    }
+};
 
 export default dbConnect;
