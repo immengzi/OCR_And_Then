@@ -29,12 +29,14 @@ export const useAuth = () => {
             if (!response.ok) {
                 throw new Error(result.message || 'Login failed')
             }
+            setUser(result.data.user);
+            showSuccess('Login successful');
 
-            setUser(result.data.user)
-            showSuccess('Login successful')
+            // 预留固定延时确保状态更新
+            await new Promise(resolve => setTimeout(resolve, 300))
             const returnUrl = searchParams.get('returnUrl') || '/';
-            console.log('returnUrl', returnUrl);
-            setTimeout(() => router.push(returnUrl), 1000);
+            await router.push(returnUrl)
+            setLoading(false)
             return true
         } catch (error) {
             if (error instanceof z.ZodError) {
@@ -43,8 +45,6 @@ export const useAuth = () => {
                 showError((error as Error).message || 'Login failed')
             }
             return false
-        } finally {
-            setLoading(false)
         }
     }
 
@@ -65,7 +65,9 @@ export const useAuth = () => {
             }
 
             showSuccess('Registration successful')
-            setTimeout(() => router.push('/login'), 1000);
+            await new Promise(resolve => setTimeout(resolve, 300))
+            router.push('/login')
+            setLoading(false)
             return true
         } catch (error) {
             if (error instanceof z.ZodError) {
@@ -91,12 +93,37 @@ export const useAuth = () => {
             }
 
             setUser(null)
-            setTimeout(() => router.push('/login'), 1000);
+            await new Promise(resolve => setTimeout(resolve, 100));
+            router.push('/login')
         } catch (error) {
             showError((error as Error).message || 'Logout failed')
             throw error
         } finally {
             setLoggingOut(false)
+        }
+    }
+
+    const validateSession = async () => {
+        try {
+            setLoading(true)
+            const response = await fetch('/api/auth/validate', {
+                credentials: 'include'
+            })
+
+            const result = await response.json()
+
+            if (!response.ok) {
+                throw new Error('Session validation failed')
+            }
+
+            setUser(result.data.user)
+            return true
+        } catch (error) {
+            console.error('Session validation error:', error)
+            return false
+        } finally {
+            await new Promise(resolve => setTimeout(resolve, 100));
+            setLoading(false);
         }
     }
 
@@ -108,6 +135,7 @@ export const useAuth = () => {
         isAdmin: user?.role === 'Admin',
         login,
         register,
-        logout
+        logout,
+        validateSession
     }
 }

@@ -1,5 +1,5 @@
 import {create} from "zustand"
-import {IUser, LoginData, RegisterData} from "@/lib/types"
+import {IUser} from "@/lib/types"
 
 interface AuthState {
     user: IUser | null
@@ -11,9 +11,6 @@ interface AuthActions {
     setUser: (user: IUser | null) => void
     setLoading: (isLoading: boolean) => void
     setLoggingOut: (isLoggingOut: boolean) => void
-    register: (data: RegisterData) => Promise<boolean>
-    login: (data: LoginData) => Promise<boolean>
-    logout: () => Promise<void>
 }
 
 export const useAuthStore = create<AuthState & AuthActions>((set) => ({

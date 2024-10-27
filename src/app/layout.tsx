@@ -10,7 +10,7 @@ import {init} from './init';
 
 export const metadata: Metadata = {
     title: "TestpaperAuto",
-    description: "Using Baidu Cloud OCR for text recognition and GPT for location correction, extract the text from the exam PDF and then further generate reference answers using GPT.",
+    description: "An exam paper automation tool that uses OCR to obtain the structured content of exam paper files and selects subsequent processing steps to generate results.",
     icons: [
         {
             rel: 'icon',

@@ -15,8 +15,7 @@ export default function Page() {
                         <li className="step step-primary">answer</li>
                     </ul>
                     <p className="py-6">
-                        Using Baidu Cloud OCR for text recognition and GPT for location correction, extract the text
-                        from the exam PDF and then further generate reference answers using GPT.
+                        An exam paper automation tool that uses OCR to obtain the structured content of exam paper files and selects subsequent processing steps to generate results.
                     </p>
                     <Link href={'/play'}>
                         <button className="btn btn-primary">
