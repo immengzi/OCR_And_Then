@@ -1,18 +1,45 @@
 import {NextResponse} from 'next/server'
 
-type ApiHandler<T = unknown> = {
-    success: boolean
-    data?: T
-    error?: {
-        code: string
-        message: string
-        details?: unknown
-    }
+enum ErrorCode {
+    BAD_REQUEST = 'BAD_REQUEST',
+    UNAUTHORIZED = 'UNAUTHORIZED',
+    FORBIDDEN = 'FORBIDDEN',
+    NOT_FOUND = 'NOT_FOUND',
+    VALIDATION_ERROR = 'VALIDATION_ERROR',
+    SERVER_ERROR = 'SERVER_ERROR'
 }
 
+enum HttpStatus {
+    OK = 200,
+    BAD_REQUEST = 400,
+    UNAUTHORIZED = 401,
+    FORBIDDEN = 403,
+    NOT_FOUND = 404,
+    UNPROCESSABLE_ENTITY = 422,
+    INTERNAL_SERVER_ERROR = 500
+}
+
+interface ApiError {
+    code: ErrorCode;
+    message: string;
+    details?: unknown;
+}
+
+interface ApiSuccess<T> {
+    success: true;
+    data: T;
+}
+
+interface ApiFailure {
+    success: false;
+    error: ApiError;
+}
+
+// type ApiResponse<T> = ApiSuccess<T> | ApiFailure;
+
 export class ApiResponseHandler {
-    static success<T>(data: T, status: number = 200): NextResponse {
-        const response: ApiHandler<T> = {
+    static success<T>(data: T, status: HttpStatus = HttpStatus.OK): NextResponse {
+        const response: ApiSuccess<T> = {
             success: true,
             data
         }
@@ -21,11 +48,11 @@ export class ApiResponseHandler {
 
     static error(
         message: string,
-        status: number = 400,
-        code: string = 'BAD_REQUEST',
-        details?: any
+        status: HttpStatus = HttpStatus.BAD_REQUEST,
+        code: ErrorCode = ErrorCode.BAD_REQUEST,
+        details?: unknown
     ): NextResponse {
-        const response: ApiHandler = {
+        const response: ApiFailure = {
             success: false,
             error: {
                 code,
@@ -36,23 +63,43 @@ export class ApiResponseHandler {
         return NextResponse.json(response, {status})
     }
 
+    static badRequest(message: string = 'Bad request'): NextResponse {
+        return this.error(
+            message,
+            HttpStatus.BAD_REQUEST,
+            ErrorCode.BAD_REQUEST
+        )
+    }
+
     static unauthorized(message: string = 'Unauthorized'): NextResponse {
-        return this.error(message, 401, 'UNAUTHORIZED')
+        return this.error(
+            message,
+            HttpStatus.UNAUTHORIZED,
+            ErrorCode.UNAUTHORIZED
+        )
     }
 
     static forbidden(message: string = 'Forbidden'): NextResponse {
-        return this.error(message, 403, 'FORBIDDEN')
+        return this.error(
+            message,
+            HttpStatus.FORBIDDEN,
+            ErrorCode.FORBIDDEN
+        )
     }
 
     static notFound(message: string = 'Resource not found'): NextResponse {
-        return this.error(message, 404, 'NOT_FOUND')
+        return this.error(
+            message,
+            HttpStatus.NOT_FOUND,
+            ErrorCode.NOT_FOUND
+        )
     }
 
     static validationError(errors: Record<string, string[]>): NextResponse {
         return this.error(
             'Validation failed',
-            422,
-            'VALIDATION_ERROR',
+            HttpStatus.UNPROCESSABLE_ENTITY,
+            ErrorCode.VALIDATION_ERROR,
             errors
         )
     }
@@ -60,12 +107,17 @@ export class ApiResponseHandler {
     static serverError(error: Error): NextResponse {
         console.error('Server error:', error)
 
-        // 生产环境下不返回具体错误信息
         const isProd = process.env.NODE_ENV === 'production'
-        const message = isProd ?
-            'Internal server error' :
-            error.message
+        const message = isProd ? 'Internal server error' : error.message
 
-        return this.error(message, 500, 'SERVER_ERROR')
+        // 添加错误堆栈信息到详情中(仅开发环境)
+        const details = !isProd ? {stack: error.stack} : undefined
+
+        return this.error(
+            message,
+            HttpStatus.INTERNAL_SERVER_ERROR,
+            ErrorCode.SERVER_ERROR,
+            details
+        )
     }
 }

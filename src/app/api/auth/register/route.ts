@@ -16,11 +16,7 @@ export async function POST(request: NextRequest) {
     try {
         const existingUser = await usersRepository.findByEmail(email)
         if (existingUser) {
-            return ApiResponseHandler.error(
-                'Email already registered',
-                400,
-                'EMAIL_EXISTS'
-            )
+            return ApiResponseHandler.badRequest('User already exists');
         }
 
         const allUsers = await usersRepository.findAll()

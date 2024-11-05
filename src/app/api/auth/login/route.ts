@@ -17,20 +17,12 @@ export async function POST(request: NextRequest) {
     try {
         const existingUser = await usersRepository.findByEmail(email)
         if (!existingUser) {
-            return ApiResponseHandler.error(
-                'Invalid email',
-                400,
-                'INVALID_CREDENTIALS'
-            )
+            return ApiResponseHandler.badRequest('No user found with this email');
         }
 
         const passwordMatch = await bcrypt.compare(password, existingUser.hash)
         if (!passwordMatch) {
-            return ApiResponseHandler.error(
-                'Invalid email or password',
-                400,
-                'INVALID_CREDENTIALS'
-            )
+            return ApiResponseHandler.badRequest('Email or password is incorrect');
         }
 
         const accessToken = await JwtHelper.generateAccessToken(existingUser)

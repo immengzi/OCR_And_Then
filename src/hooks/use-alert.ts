@@ -6,7 +6,7 @@ export const useAlert = () => {
 
     const show = (message: string, type: IAlert['type']) => {
         showAlert(type, message)
-        setTimeout(clearAlert, 3000)
+        setTimeout(clearAlert, 5000)
     }
 
     return {

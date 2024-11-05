@@ -25,18 +25,18 @@ export const metadata: Metadata = {
     ],
 };
 
-export default async function RootLayout({children}: Readonly<{ children: React.ReactNode; }>) {
+export default function RootLayout({children}: Readonly<{ children: React.ReactNode; }>) {
     const cookieStore = cookies();
     const theme = cookieStore.get('theme')?.value ?? 'dark';
-    await init().catch(console.error);
+    init().catch(console.error);
 
     return (
         <html lang="zh" data-theme={theme}>
         <body className="flex flex-col">
         <ThemeProvider theme={theme}>
-            <header>
+            <nav>
                 <Navbar/>
-            </header>
+            </nav>
             <main className="flex flex-col justify-center items-center grow">
                 <Alert/>
                 {children}

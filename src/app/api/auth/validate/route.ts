@@ -8,11 +8,7 @@ export async function GET() {
         // 1. 获取并检查 access token
         const accessToken = cookies().get('accessToken')?.value
         if (!accessToken) {
-            return ApiResponseHandler.error(
-                'No token provided',
-                401,
-                'UNAUTHORIZED'
-            )
+            return ApiResponseHandler.unauthorized();
         }
 
         try {
@@ -22,11 +18,7 @@ export async function GET() {
             // 3. 获取用户信息
             const user = await usersRepository.findById(decodedToken._id)
             if (!user) {
-                return ApiResponseHandler.error(
-                    'User not found',
-                    404,
-                    'USER_NOT_FOUND'
-                )
+                return ApiResponseHandler.notFound();
             }
 
             // 4. 返回用户信息
@@ -45,11 +37,7 @@ export async function GET() {
             // 5. 如果 access token 无效，尝试使用 refresh token
             const refreshToken = cookies().get('refreshToken')?.value
             if (!refreshToken) {
-                return ApiResponseHandler.error(
-                    'Invalid session',
-                    401,
-                    'UNAUTHORIZED'
-                )
+                return ApiResponseHandler.unauthorized();
             }
 
             // 6. 验证 refresh token
@@ -58,11 +46,7 @@ export async function GET() {
             // 7. 获取用户信息
             const user = await usersRepository.findById(decodedRefreshToken._id)
             if (!user) {
-                return ApiResponseHandler.error(
-                    'User not found',
-                    404,
-                    'USER_NOT_FOUND'
-                )
+                return ApiResponseHandler.notFound();
             }
 
             // 8. 生成新的 access token
