@@ -2,10 +2,7 @@
 
 import {ChangeEvent, useState} from 'react';
 import {usePlay} from "@/hooks/use-play";
-import {useAuth} from "@/hooks/use-auth";
-import {useRouter} from "next/navigation";
-import {useAlert} from "@/hooks/use-alert";
-import {useLoadingStore} from "@/store/slices/loading-slice";
+import {useAlert} from '@/hooks/use-alert';
 
 interface FormData {
     model: string;
@@ -21,6 +18,7 @@ const GPT_MODELS = [
 ] as const;
 
 const ACCEPTED_FILE_TYPES = 'application/pdf, image/*';
+const MAX_FILE_SIZE = 10 * 1024 * 1024;
 
 interface FormFieldProps {
     label: string;
@@ -35,13 +33,9 @@ const FormField = ({label, children}: FormFieldProps) => (
 );
 
 export default function Play() {
-    const router = useRouter()
-    const {user} = useAuth();
-    const {show} = useAlert();
     const {upload, ocr} = usePlay();
-    const {showLoading, hideLoading} = useLoadingStore();
-
-    const showWarning = (message: string) => show(message, 'warning');
+    const {show} = useAlert();
+    const showError = (message: string) => show(message, 'error');
 
     const [formData, setFormData] = useState<FormData>({
         model: 'gpt-4o-mini',
@@ -54,17 +48,26 @@ export default function Play() {
         // TODO: 实现表单提交逻辑
     };
 
-    const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0] || null;
+    const handleFileChange = async (e: ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+
+        if (!file) {
+            return;
+        }
+
+        if (file.size > MAX_FILE_SIZE) {
+            showError(`File size should not exceed ${MAX_FILE_SIZE / 1024 / 1024}MB`);
+            e.target.value = '';
+            return;
+        }
+
         setFormData(prev => ({...prev, file}));
-        if (user) {
-            upload(file, user._id);
-        } else {
-            showLoading('Redirecting to login page...');
-            setTimeout(() => {
-                hideLoading();
-                router.push('/login');
-            }, 1000);
+
+        const success = await upload(file);
+
+        if (!success) {
+            e.target.value = '';
+            setFormData(prev => ({...prev, file: null}));
         }
     };
 

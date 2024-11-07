@@ -1,18 +1,19 @@
-'use client'
-import Link from 'next/link'
-import {useForm} from 'react-hook-form'
-import {useAuth} from "@/hooks/use-auth"
-import {AUTH_CONFIG} from '@/lib/config/auth'
-import {AuthInput} from '@/components/ui/AuthInput'
-import {Key, Mail, User} from 'lucide-react'
-import {RegisterData} from '@/lib/types'
+'use client';
+
+import Link from 'next/link';
+import {AUTH_CONFIG} from '@/lib/config/auth';
+import {Key, Mail, User} from 'lucide-react';
+import {useForm} from 'react-hook-form';
+import {useAuth} from "@/hooks/use-auth";
+import {AuthInput} from '@/components/ui/AuthInput';
+import {RegisterData} from '@/lib/types';
 
 export default function Register() {
-    const {register: registerUser} = useAuth()
-    const {register, handleSubmit, formState: {errors, isSubmitting}} = useForm()
+    const {register: registerUser} = useAuth();
+    const {register, handleSubmit, formState: {errors, isSubmitting}} = useForm();
 
     const onSubmit = async (data: RegisterData) => {
-        await registerUser(data)
+        await registerUser(data);
     }
 
     return (

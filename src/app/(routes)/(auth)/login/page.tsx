@@ -1,19 +1,19 @@
-'use client'
+'use client';
 
-import Link from 'next/link'
-import {useForm} from 'react-hook-form'
-import {useAuth} from "@/hooks/use-auth"
-import {AUTH_CONFIG} from '@/lib/config/auth'
-import {AuthInput} from '@/components/ui/AuthInput'
-import {Key, Mail} from 'lucide-react'
-import {LoginData} from '@/lib/types'
+import Link from 'next/link';
+import {AUTH_CONFIG} from '@/lib/config/auth';
+import {Key, Mail} from 'lucide-react';
+import {useForm} from 'react-hook-form';
+import {useAuth} from "@/hooks/use-auth";
+import {AuthInput} from '@/components/ui/AuthInput';
+import {LoginData} from '@/lib/types';
 
 export default function Login() {
-    const {login} = useAuth()
-    const {register, handleSubmit, formState: {errors, isSubmitting}} = useForm()
+    const {login} = useAuth();
+    const {register, handleSubmit, formState: {errors, isSubmitting}} = useForm();
 
     const onSubmit = async (data: LoginData) => {
-        await login(data)
+        await login(data);
     }
 
     return (

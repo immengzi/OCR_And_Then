@@ -1,4 +1,4 @@
-import {File} from '@/server/db/models'
+import {File} from '@/server/db/models';
 import {IFile, IUploadFile} from "@/lib/types/IFile";
 
 export class FilesRepository {
@@ -12,12 +12,12 @@ export class FilesRepository {
     }
 
     async findByUserId(userId: string): Promise<IFile | null> {
-        return File.findOne({userId})
+        return File.findOne({userId});
     }
 
     async findById(id: string): Promise<IFile | null> {
-        return File.findById(id)
+        return File.findById(id);
     }
 }
 
-export const filesRepository = new FilesRepository()
+export const filesRepository = new FilesRepository();

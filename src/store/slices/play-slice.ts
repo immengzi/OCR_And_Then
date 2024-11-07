@@ -18,7 +18,7 @@ interface PlayActions {
     setContent: (tab: PlayState['currentTab'], content: string) => void;
     setOcrCompleted: (completed: boolean) => void;
     setError: (error: string | null) => void;
-    reset: () => void;
+    resetPlay: () => void;
 }
 
 const initialState: PlayState = {
@@ -43,5 +43,5 @@ export const usePlayStore = create<PlayState & PlayActions>((set) => ({
         }
     })),
     setOcrCompleted: (isOcrCompleted) => set({isOcrCompleted}),
-    reset: () => set(initialState)
+    resetPlay: () => set(initialState)
 }));

@@ -1,9 +1,9 @@
-'use client'
+'use client';
 
-import {useEffect} from 'react'
-import {usePathname} from 'next/navigation'
-import {useAlert} from '@/hooks/use-alert'
-import {X} from 'lucide-react'
+import {useEffect} from 'react';
+import {usePathname} from 'next/navigation';
+import {useAlert} from '@/hooks/use-alert';
+import {X} from 'lucide-react';
 
 const alertStyles = {
     success: 'bg-green-400 text-green-900 border-green-600',
@@ -13,14 +13,14 @@ const alertStyles = {
 }
 
 export function Alert() {
-    const pathname = usePathname()
-    const {alert, clearAlert} = useAlert()
+    const pathname = usePathname();
+    const {alert, clearAlert} = useAlert();
 
     useEffect(() => {
-        clearAlert()
-    }, [pathname, clearAlert])
+        clearAlert();
+    }, [pathname, clearAlert]);
 
-    if (!alert) return null
+    if (!alert) return null;
 
     return (
         <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50 w-full max-w-md px-4">

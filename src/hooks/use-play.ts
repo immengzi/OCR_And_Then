@@ -1,25 +1,38 @@
 import {IFile} from "@/lib/types/IFile";
-import {usePlayStore} from "@/store/slices/play-slice";
+import {useAuth} from "@/hooks/use-auth";
 import {useAlert} from "@/hooks/use-alert";
+import {useRouter} from "next/navigation";
 import {useLoadingStore} from "@/store/slices/loading-slice";
+import {usePlayStore} from "@/store/slices/play-slice";
 
 export const usePlay = () => {
-    const {setFile, setTab, setContent, setOcrCompleted, reset} = usePlayStore();
-    const {showLoading, hideLoading} = useLoadingStore();
+    const router = useRouter();
+    const {user} = useAuth();
     const {show, clearAlert} = useAlert();
+    const {showLoading, hideLoading} = useLoadingStore();
+    const {setFile, setTab, setContent, setOcrCompleted, resetPlay} = usePlayStore();
+
     const showSuccess = (message: string) => show(message, 'success');
-    const showWarning = (message: string) => show(message, 'warning');
     const showError = (message: string) => show(message, 'error');
 
-    const upload = async (file, userId) => {
+    const upload = async (file) => {
         try {
-            reset();
+            resetPlay();
             clearAlert();
+
+            if (!user) {
+                showLoading('Please login first...');
+                await new Promise(resolve => setTimeout(resolve, 1500));
+                hideLoading();
+                router.push('/login');
+                return false;
+            }
+
             showLoading('Uploading file...');
 
             const formData = new FormData();
             formData.append('file', file);
-            formData.append('userId', userId);
+            formData.append('userId', user._id);
 
             const response = await fetch('/api/play/upload', {
                 method: 'POST',
@@ -36,7 +49,6 @@ export const usePlay = () => {
             setFile(fileInfo);
             setTab('ocr');
             showSuccess('Upload successful');
-
             return true;
         } catch (error) {
             showError((error as Error).message || 'Upload failed');

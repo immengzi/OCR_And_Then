@@ -1,5 +1,5 @@
-import {create} from "zustand"
-import {IAlert} from "@/lib/types"
+import {create} from "zustand";
+import {IAlert} from "@/lib/types";
 
 interface AlertState {
     alert: IAlert | null

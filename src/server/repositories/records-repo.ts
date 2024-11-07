@@ -1,4 +1,4 @@
-import {Record} from '@/server/db/models'
+import {Record} from '@/server/db/models';
 import {IRecord} from "@/lib/types/IRecord";
 
 export class RecordsRepository {
@@ -24,4 +24,4 @@ export class RecordsRepository {
     }
 }
 
-export const recordsRepository = new RecordsRepository()
+export const recordsRepository = new RecordsRepository();

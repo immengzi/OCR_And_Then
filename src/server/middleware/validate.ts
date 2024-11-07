@@ -1,13 +1,13 @@
-import {NextRequest} from 'next/server'
-import {z} from 'zod'
-import {ApiResponseHandler} from './api-handler'
+import {NextRequest} from 'next/server';
+import {z} from 'zod';
+import {ApiResponseHandler} from './api-handler';
 
 export function validateRequest<T>(schema: z.Schema<T>) {
     return async (request: NextRequest) => {
         try {
-            const body = await request.json()
-            const validatedData = schema.parse(body)
-            return {success: true, data: validatedData}
+            const body = await request.json();
+            const validatedData = schema.parse(body);
+            return {success: true, data: validatedData};
         } catch (error) {
             if (error instanceof z.ZodError) {
                 return {
