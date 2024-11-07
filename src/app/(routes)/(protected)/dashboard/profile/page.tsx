@@ -1,6 +1,5 @@
 'use client';
 
-import {Spinner} from "@/components/ui/Spinner";
 import {useAuth} from "@/hooks/use-auth";
 
 export default function Profile() {
@@ -14,6 +13,11 @@ export default function Profile() {
             </>
         );
     } else {
-        return <Spinner/>;
+        return (
+            <>
+                <h1>Hi there!</h1>
+                <p>You&apos;re not logged in.</p>
+            </>
+        );
     }
 }

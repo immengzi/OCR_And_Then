@@ -1,29 +1,21 @@
-import {create} from "zustand"
-import {IUser} from "@/lib/types"
+import {create} from "zustand";
+import {IUser} from "@/lib/types";
 
 interface AuthState {
-    user: IUser | null
-    isLoading: boolean
-    isLoggingOut: boolean
+    user: IUser | null,
 }
 
 interface AuthActions {
-    setUser: (user: IUser | null) => void
-    setLoading: (isLoading: boolean) => void
-    setLoggingOut: (isLoggingOut: boolean) => void
+    setUser: (user: IUser | null) => void,
     reset: () => void
 }
 
 const initialState = {
     user: null,
-    isLoading: true,
-    isLoggingOut: false
 };
 
 export const useAuthStore = create<AuthState & AuthActions>((set) => ({
     ...initialState,
     setUser: (user) => set({user}),
-    setLoading: (isLoading) => set({isLoading}),
-    setLoggingOut: (isLoggingOut) => set({isLoggingOut}),
     reset: () => set(initialState)
 }))

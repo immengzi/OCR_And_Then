@@ -2,13 +2,13 @@
 
 import React, {useEffect} from "react";
 import {useAuth} from "@/hooks/use-auth";
-import {Spinner} from "@/components/ui/Spinner";
+import LoadingOverlay from "@/components/ui/LoadingOverlay";
 
 let didInit = false;
 export default function RoutesLayout({children}: {
     children: React.ReactNode
 }) {
-    const {isLoading, validateSession} = useAuth();
+    const {validateSession} = useAuth();
 
     useEffect(() => {
         if (!didInit) {
@@ -18,13 +18,10 @@ export default function RoutesLayout({children}: {
         }
     }, [])
 
-    if (isLoading) {
-        return <Spinner />
-    }
-
     return (
         <>
             {children}
+            <LoadingOverlay/>
         </>
     )
 }
