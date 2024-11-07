@@ -5,6 +5,7 @@ import {usePlay} from "@/hooks/use-play";
 import {useAuth} from "@/hooks/use-auth";
 import {useRouter} from "next/navigation";
 import {useAlert} from "@/hooks/use-alert";
+import {useLoadingStore} from "@/store/slices/loading-slice";
 
 interface FormData {
     model: string;
@@ -38,6 +39,7 @@ export default function Play() {
     const {user} = useAuth();
     const {show} = useAlert();
     const {upload, ocr} = usePlay();
+    const {showLoading, hideLoading} = useLoadingStore();
 
     const showWarning = (message: string) => show(message, 'warning');
 
@@ -58,9 +60,11 @@ export default function Play() {
         if (user) {
             upload(file, user._id);
         } else {
-            showWarning('Please login to upload files');
-            setTimeout(() => router.push('/login'), 3000);
-            return;
+            showLoading('Redirecting to login page...');
+            setTimeout(() => {
+                hideLoading();
+                router.push('/login');
+            }, 1000);
         }
     };
 
