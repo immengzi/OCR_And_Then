@@ -1,8 +1,8 @@
 import {File} from '@/server/db/models'
-import {IFile} from "@/lib/types/IFile";
+import {IFile, IUploadFile} from "@/lib/types/IFile";
 
 export class FilesRepository {
-    async create(fileData: IFile): Promise<IFile> {
+    async create(fileData: IUploadFile): Promise<IFile> {
         const file = new File(fileData);
         return file.save();
     }

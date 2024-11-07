@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.686.0",
     "bcrypt": "^5.1.1",
     "jose": "^5.9.6",
     "lucide-react": "^0.453.0",
