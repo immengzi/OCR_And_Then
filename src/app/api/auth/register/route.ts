@@ -1,52 +1,36 @@
-import {NextRequest} from 'next/server'
-import bcrypt from 'bcrypt'
-import {ApiResponseHandler} from '@/server/middleware/api-handler'
-import {validateRequest} from '@/server/middleware/validate'
-import {usersRepository} from '@/server/repositories/users-repo'
-import {RegisterSchema} from '@/lib/config/auth'
+import {NextRequest, NextResponse} from 'next/server';
+import bcrypt from 'bcrypt';
+import {AppError} from "@/lib/types/errors";
+import {usersRepository} from '@/server/repositories/users-repo';
+import {RegisterSchema} from "@/lib/config/auth";
+import {withErrorHandler} from "@/server/middleware/api-utils";
 
 export async function POST(request: NextRequest) {
-    const validationResult = await validateRequest(RegisterSchema)(request)
-    if (!validationResult.success) {
-        return validationResult.error
-    }
-
-    const {email, username, password} = validationResult.data
-
-    try {
-        const existingUser = await usersRepository.findByEmail(email)
-        if (existingUser) {
-            return ApiResponseHandler.badRequest('User already exists');
+    return withErrorHandler(async () => {
+        const result = await RegisterSchema.safeParseAsync(await request.json());
+        if (!result.success) {
+            throw AppError.BadRequest('Invalid request data', result.error.format());
         }
 
-        const allUsers = await usersRepository.findAll()
-        const role = allUsers.length === 0 ? 'Admin' : 'User'
+        const {email, username, password} = result.data;
 
-        const hashedPassword = await bcrypt.hash(password, 10)
+        const existingUser = await usersRepository.findByEmail(email);
+        if (existingUser) {
+            throw AppError.BadRequest('Email already in use');
+        }
 
-        const user = await usersRepository.create({
-            email,
-            username,
-            hash: hashedPassword,
-            role
-        })
+        const allUsers = await usersRepository.findAll();
+        const role = allUsers.length === 0 ? 'Admin' : 'User';
 
-        return ApiResponseHandler.success(
-            {
-                message: 'Registration successful',
-                user: {
-                    _id: user._id,
-                    email: user.email,
-                    username: user.username,
-                    role: user.role,
-                    createdAt: user.createdAt
-                }
-            },
-            201
-        )
+        const hash = await bcrypt.hash(password, 10);
+        const newUser = await usersRepository.create({email, username, hash, role});
 
-    } catch (error) {
-        console.error('Registration error:', error)
-        return ApiResponseHandler.serverError(error as Error)
-    }
+        const userData = {
+            _id: newUser._id,
+            email: newUser.email,
+            username: newUser.username
+        };
+
+        return NextResponse.json(userData);
+    });
 }

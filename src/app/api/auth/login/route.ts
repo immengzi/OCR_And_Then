@@ -1,61 +1,55 @@
-import {NextRequest} from 'next/server'
-import bcrypt from 'bcrypt'
-import {ApiResponseHandler} from '@/server/middleware/api-handler'
-import {validateRequest} from '@/server/middleware/validate'
-import {JwtHelper} from '@/server/middleware/jwt'
-import {usersRepository} from '@/server/repositories/users-repo'
-import {LoginSchema} from '@/lib/config/auth'
+import {NextRequest, NextResponse} from 'next/server';
+import bcrypt from 'bcrypt';
+import {JwtHelper} from '@/server/middleware/jwt';
+import {AppError} from "@/lib/types/errors";
+import {usersRepository} from '@/server/repositories/users-repo';
+import {LoginSchema} from '@/lib/config/auth';
+import {withErrorHandler} from "@/server/middleware/api-utils";
 
 export async function POST(request: NextRequest) {
-    const validationResult = await validateRequest(LoginSchema)(request)
-    if (!validationResult.success) {
-        return validationResult.error
-    }
+    return withErrorHandler(async () => {
+        const result = await LoginSchema.safeParseAsync(await request.json());
+        if (!result.success) {
+            throw AppError.BadRequest('Invalid request data', result.error.format());
+        }
 
-    const {email, password} = validationResult.data
+        const {email, password} = result.data;
 
-    try {
-        const existingUser = await usersRepository.findByEmail(email)
+        const existingUser = await usersRepository.findByEmail(email);
         if (!existingUser) {
-            return ApiResponseHandler.badRequest('No user found with this email');
+            throw AppError.BadRequest('Invalid email or password');
         }
 
-        const passwordMatch = await bcrypt.compare(password, existingUser.hash)
+        const passwordMatch = await bcrypt.compare(password, existingUser.hash);
         if (!passwordMatch) {
-            return ApiResponseHandler.badRequest('Email or password is incorrect');
+            throw AppError.BadRequest('Invalid email or password');
         }
 
-        const accessToken = await JwtHelper.generateAccessToken(existingUser)
-        const refreshToken = await JwtHelper.generateRefreshToken(existingUser._id)
+        const accessToken = await JwtHelper.generateAccessToken(existingUser);
+        const refreshToken = await JwtHelper.generateRefreshToken(existingUser._id);
 
-        const response = ApiResponseHandler.success(
-            {
-                message: 'Login successful',
-                user: {
-                    _id: existingUser._id,
-                    email: existingUser.email,
-                    username: existingUser.username,
-                }
-            },
-            200
-        )
+        const userData = {
+            _id: existingUser._id,
+            email: existingUser.email,
+            username: existingUser.username
+        };
+
+        const response = NextResponse.json(userData);
 
         response.cookies.set('accessToken', accessToken, {
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production',
             sameSite: 'lax',
             maxAge: 60 * 60 * 24, // 24 hours
-        } as any)
+        });
 
         response.cookies.set('refreshToken', refreshToken, {
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production',
             sameSite: 'lax',
             maxAge: 60 * 60 * 24 * 7, // 7 days
-        } as any)
+        });
 
-        return response
-    } catch (error) {
-        return ApiResponseHandler.serverError(error)
-    }
+        return response;
+    });
 }

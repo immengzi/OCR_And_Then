@@ -9,9 +9,16 @@ export const useAlert = () => {
         setTimeout(clearAlert, 5000);
     }
 
+    const showSuccess = (message: string) => show(message, 'success');
+    const showError = (message: string) => show(message, 'error');
+    const showWarning = (message: string) => show(message, 'warning');
+
     return {
         alert,
         show,
+        showSuccess,
+        showError,
+        showWarning,
         clearAlert
     }
 }

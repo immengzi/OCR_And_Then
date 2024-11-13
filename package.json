@@ -10,6 +10,8 @@
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.686.0",
+    "@uiw/react-md-editor": "^4.0.4",
+    "ai": "^3.4.33",
     "bcrypt": "^5.1.1",
     "jose": "^5.9.6",
     "lucide-react": "^0.453.0",
@@ -24,6 +26,7 @@
     "zustand": "^5.0.0"
   },
   "devDependencies": {
+    "@types/bcrypt": "^5.0.2",
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",
