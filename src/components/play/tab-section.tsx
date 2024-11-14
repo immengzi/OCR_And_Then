@@ -1,6 +1,7 @@
 import MDEditor from '@uiw/react-md-editor';
 import {usePlayStore} from '@/store/slices/play-slice';
 import {useTheme} from "@/context/ThemeContext";
+import {usePlay} from "@/hooks/use-play";
 
 const tabs = [
     {id: 'ocr', label: 'OCR'},
@@ -10,11 +11,17 @@ const tabs = [
 
 export const TabSection = () => {
     const {currentTab, contents, isOcrCompleted, setTab, setContent} = usePlayStore();
+    const {answer, summarize} = usePlay();
     const {theme} = useTheme();
 
-    const handleTabClick = (tab: typeof tabs[number]['id']) => {
+    const handleTabClick = async (tab: typeof tabs[number]['id']) => {
         if (tab !== 'ocr' && !isOcrCompleted) return;
-        setTab(tab);
+        const ocrResult = contents['ocr'];
+        if (tab === 'answer') {
+            await answer(ocrResult);
+        } else if (tab === 'summarize') {
+            await summarize(ocrResult);
+        }
     };
 
     const handleContentChange = (value?: string) => {

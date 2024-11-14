@@ -1,7 +1,7 @@
 'use client';
 
 import {ChangeEvent, useState} from 'react';
-import {PlayFormData} from "@/lib/types";
+import {OcrFormData} from "@/lib/types";
 import {usePlayStore} from "@/store/slices/play-slice";
 import {usePlay} from "@/hooks/use-play";
 import {useAlert} from "@/hooks/use-alert";
@@ -13,7 +13,7 @@ export default function Play() {
     const {showWarning} = useAlert();
     const {displayMode} = usePlayStore();
 
-    const [formData, setFormData] = useState<PlayFormData>({
+    const [formData, setFormData] = useState<OcrFormData>({
         model: 'gpt-4o-mini',
         file: null
     });

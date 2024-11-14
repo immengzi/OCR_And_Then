@@ -5,7 +5,7 @@ export async function withErrorHandler(handler: () => Promise<NextResponse>) {
     try {
         return await handler();
     } catch (error) {
-        console.error('API Error:', error);
+        // console.error('API Error:', error);
 
         if (error instanceof AppError) {
             return NextResponse.json(

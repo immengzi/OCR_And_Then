@@ -33,8 +33,6 @@ export const useAuth = () => {
                 throw AppError.BadRequest();
             }
 
-            console.log('responseData:', responseData);
-
             setUser(responseData);
             showSuccess('Login successful');
 

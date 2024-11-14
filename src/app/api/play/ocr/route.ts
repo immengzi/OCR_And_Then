@@ -1,5 +1,6 @@
 import {NextRequest, NextResponse} from "next/server";
 import {AppError} from "@/lib/types/errors";
+import OpenAI from 'openai';
 import {withErrorHandler} from "@/server/middleware/api-utils";
 
 export async function POST(req: NextRequest) {
@@ -10,27 +11,54 @@ export async function POST(req: NextRequest) {
         }
 
         const formData = await req.formData();
-        const fileData = formData.get('file');
+        const file = formData.get('file');
+        const model = formData.get('model') as string;
 
-        if (!fileData || !(fileData instanceof File)) {
+        if (!file || !(file instanceof File)) {
             throw AppError.NotFound('File not found or invalid file type');
         }
 
-        const ocrResult = await performOCR(fileData);
-        console.log('OCR result:', ocrResult);
+        const ocrResult = await performOCR(file);
 
-        // const build_ocr_prompt = process.env.BUILD_OCR_PROMPT!;
-        // 创建GPT流式响应
+        const stream = new TransformStream();
+        const writer = stream.writable.getWriter();
 
-        // 创建记录
+        formatOCR(ocrResult, model, writer);
 
-        // 返回流式响应
-
-        return NextResponse.json({
-            message: 'OCR processing completed',
-            ocrResult
+        return new NextResponse(stream.readable, {
+            headers: {
+                'Content-Type': 'text/event-stream',
+                'Cache-Control': 'no-cache',
+                'Connection': 'keep-alive',
+            },
         });
     });
+}
+
+async function formatOCR(ocrResult: string, gptApiModel: string, writer: WritableStreamDefaultWriter) {
+    const gptClient = new OpenAI({
+        baseURL: process.env.GPT_API_URL || '',
+        apiKey: process.env.GPT_API_KEY || ''
+    });
+    const buildOcrPrompt = process.env.BUILD_OCR_PROMPT || '';
+    const buildOcrTxt = buildOcrPrompt + '\n' + ocrResult;
+
+    const buildOcrStream = await gptClient.chat.completions.create({
+        model: gptApiModel,
+        messages: [{role: 'user', content: buildOcrTxt}],
+        stream: true
+    });
+
+    const encoder = new TextEncoder();
+
+    for await (const chunk of buildOcrStream) {
+        const content = chunk.choices[0]?.delta?.content || '';
+        if (content) {
+            await writer.write(encoder.encode(`data: ${JSON.stringify({ content })}\n\n`));
+        }
+    }
+
+    await writer.close();
 }
 
 async function performOCR(file: File) {

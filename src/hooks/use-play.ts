@@ -1,12 +1,12 @@
 import {IFile} from "@/lib/types/IFile";
-import {PlayFormData} from "@/lib/types";
+import {AppError} from "@/lib/types/errors";
+import {OcrFormData} from "@/lib/types";
 import {useLoadingStore} from "@/store/slices/loading-slice";
 import {usePlayStore} from "@/store/slices/play-slice";
 import {useAuth} from "@/hooks/use-auth";
 import {useAlert} from "@/hooks/use-alert";
 import {useRouter} from "next/navigation";
 import {useErrorHandler} from "@/components/layout/ErrorBoundary";
-import {AppError} from "@/lib/types/errors";
 
 export const usePlay = () => {
     const router = useRouter();
@@ -15,7 +15,6 @@ export const usePlay = () => {
     const {showLoading, hideLoading} = useLoadingStore();
     const {
         file,
-        isOcrCompleted,
         setFile,
         setTab,
         setContent,
@@ -63,31 +62,85 @@ export const usePlay = () => {
         }
     });
 
-    const processOcrStream = async (reader: ReadableStreamDefaultReader<Uint8Array>) => {
-        try {
-            let fullContent = '';
+    const ocr = useErrorHandler(async (ocrFormData: OcrFormData) => {
+        clearAlert();
+        showLoading('Processing OCR...');
 
+        if (!file || !user) {
+            throw AppError.BadRequest('File or user not found');
+        }
+
+        const form = new FormData();
+        if (ocrFormData.file) {
+            form.append('file', ocrFormData.file, ocrFormData.file.name);
+        }
+        form.append('model', ocrFormData.model);
+
+        const response = await fetch('/api/play/ocr', {
+            method: 'POST',
+            body: form
+        });
+
+        if (!response.ok) {
+            throw AppError.BadRequest('OCR processing failed');
+        }
+
+        setDisplayMode('tabs');
+        setTab('ocr');
+        hideLoading();
+
+        await handleStreamResponse(response, (content) => {
+            setContent('ocr', content);
+        });
+
+        setOcrCompleted(true);
+        showSuccess('OCR processing successful');
+        return true;
+    });
+
+    const answer = useErrorHandler(async (ocrResult: string) => {
+    });
+
+    const summarize = useErrorHandler(async (ocrResult: string) => {
+    });
+
+    async function handleStreamResponse(
+        response: Response,
+        onData: (content: string) => void
+    ): Promise<string> {
+        const reader = response.body?.getReader();
+        const decoder = new TextDecoder();
+        let accumulatedContent = '';
+
+        if (!reader) {
+            throw AppError.BadRequest('Response body is not readable');
+        }
+
+        try {
             while (true) {
-                const { done, value } = await reader.read();
+                const {done, value} = await reader.read();
                 if (done) break;
 
-                const text = new TextDecoder().decode(value);
-                const lines = text.split('\n').filter(line => line.trim());
+                const chunk = decoder.decode(value, {stream: true});
+                const lines = chunk.split('\n');
 
                 for (const line of lines) {
                     if (line.startsWith('data: ')) {
-                        const data = line.slice(5);
+                        const data = line.slice(6).trim();
+
                         if (data === '[DONE]') {
-                            setOcrCompleted(true);
-                            break;
+                            return accumulatedContent;
                         }
-                        try {
-                            const parsed = JSON.parse(data);
-                            const content = parsed.content || '';
-                            fullContent += content;
-                            setContent('ocr', fullContent);
-                        } catch (e) {
-                            console.error('Failed to parse OCR stream:', e);
+
+                        const parsedData = JSON.parse(data);
+
+                        if (parsedData.error) {
+                            throw AppError.ServerError(parsedData.error);
+                        }
+
+                        if (parsedData.content) {
+                            accumulatedContent += parsedData.content;
+                            onData(parsedData.content);
                         }
                     }
                 }
@@ -95,49 +148,14 @@ export const usePlay = () => {
         } finally {
             reader.releaseLock();
         }
-    };
 
-    const ocr = async (playFormData: PlayFormData) => {
-        clearAlert();
-        showLoading('Processing OCR...');
-
-        try {
-            if (!file || !user) {
-                throw AppError.BadRequest('File or user not found');
-            }
-
-            const form = new FormData();
-            if (playFormData.file) {
-                form.append('file', playFormData.file, playFormData.file.name);
-            }
-            form.append('model', playFormData.model);
-
-            const response = await fetch('/api/play/ocr', {
-                method: 'POST',
-                body: form,
-            });
-
-            const responseData = await response.json();
-
-            if (!response.ok) {
-                throw AppError.BadRequest('OCR processing failed');
-            }
-
-            console.log('OCR result:', responseData);
-
-            setDisplayMode('tabs');
-            setTab('ocr');
-            showSuccess('OCR processing successful');
-            return true;
-        } finally {
-            hideLoading();
-        }
-    };
+        return accumulatedContent;
+    }
 
     return {
-        file,
-        isOcrCompleted,
         upload,
         ocr,
+        answer,
+        summarize
     };
 }
