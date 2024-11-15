@@ -3,7 +3,7 @@ export default function AuthLayout({children}: {
 }) {
 
     return (
-        <div className="max-w-sm w-full gap-5 text-center">
+        <div className="max-w-sm w-full gap-5 text-center my-auto mx-auto">
             {children}
         </div>
     )

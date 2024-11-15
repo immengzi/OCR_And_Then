@@ -37,7 +37,7 @@ export default function RootLayout({children}: Readonly<{ children: React.ReactN
             <nav>
                 <Navbar/>
             </nav>
-            <main className="flex flex-col justify-center items-center grow">
+            <main className="flex flex-col grow">
                 <Alert/>
                 {children}
             </main>

@@ -1,33 +1,28 @@
-'use client'
-import Link from "next/link"
-import {useTheme} from "@/context/ThemeContext"
-import {useAuth} from "@/hooks/use-auth"
+'use client';
+import Link from "next/link";
 import {NAVIGATION_CONFIG} from "@/lib/config/routes";
+import {User, Sun, Moon} from 'lucide-react';
+import {useTheme} from "@/context/ThemeContext";
+import {useAuth} from "@/hooks/use-auth";
 
 export default function Navbar() {
-    const {toggleTheme} = useTheme()
-    const {user, isLoggingOut, logout} = useAuth()
+    const {theme, toggleTheme} = useTheme();
+    const {user, logout} = useAuth();
 
     const handleLogout = async (e: React.MouseEvent) => {
-        e.preventDefault()
-        if (!isLoggingOut) {
-            await logout()
-        }
+        e.preventDefault();
+        await logout();
     }
 
-    const renderThemeDropdown = () => (
-        <li className="dropdown">
-            <div tabIndex={0} role="button" className="btn btn-ghost rounded-btn">
-                Theme
-            </div>
-            <ul tabIndex={0} className="dropdown-content menu bg-base-100 rounded-box z-[1] w-32 p-2 shadow">
-                <li><a onClick={() => toggleTheme("light")}>Light</a></li>
-                <li><a onClick={() => toggleTheme("dark")}>Dark</a></li>
-            </ul>
-        </li>
+    const renderNavigationLinksMoblie = () => (
+        NAVIGATION_CONFIG.links.map(link => (
+            <li key={link.label}>
+                <Link href={link.href}>{link.label}</Link>
+            </li>
+        ))
     )
 
-    const renderNavigationLinks = () => (
+    const renderNavigationLinksPC = () => (
         NAVIGATION_CONFIG.links.map(link => (
             <li key={link.label}>
                 <div tabIndex={0} role="button" className="btn btn-ghost rounded-btn">
@@ -38,7 +33,7 @@ export default function Navbar() {
     )
 
     const renderUserMenu = () => (
-        <ul tabIndex={0} className="menu dropdown-content bg-base-100 rounded-box z-[1] mt-3 w-32 p-2 shadow">
+        <ul tabIndex={0} className="menu dropdown-content rounded-box z-[1] mt-3 w-32 p-2 shadow bg-base-100">
             {user ? (
                 <>
                     {NAVIGATION_CONFIG.userLinks.map(link => (
@@ -50,11 +45,7 @@ export default function Navbar() {
                     ))}
                     <li>
                         <a href={NAVIGATION_CONFIG.auth.logout.href} onClick={handleLogout}>
-                            {isLoggingOut ? (
-                                <span className="loading loading-infinity loading-sm"/>
-                            ) : (
-                                <span>Logout</span>
-                            )}
+                            <span>Logout</span>
                         </a>
                     </li>
                 </>
@@ -90,9 +81,8 @@ export default function Navbar() {
                         </svg>
                     </div>
                     <ul tabIndex={0}
-                        className="menu dropdown-content bg-base-100 rounded-box z-[1] mt-3 w-32 p-2 shadow">
-                        {renderNavigationLinks()}
-                        {renderThemeDropdown()}
+                        className="menu dropdown-content rounded-box z-[1] mt-3 w-32 p-2 shadow bg-base-100">
+                        {renderNavigationLinksMoblie()}
                     </ul>
                 </div>
                 <Link href={'/'} className="btn btn-ghost text-xl">TestpaperAuto</Link>
@@ -101,21 +91,24 @@ export default function Navbar() {
             {/* PC */}
             <div className="navbar-center hidden lg:flex">
                 <ul className="menu menu-horizontal px-1">
-                    {renderNavigationLinks()}
-                    {renderThemeDropdown()}
+                    {renderNavigationLinksPC()}
                 </ul>
             </div>
 
             {/* User Menu */}
-            <div className="navbar-end">
+            <div className="navbar-end space-x-2">
+                <label className="swap swap-rotate">
+                    <input
+                        type="checkbox"
+                        checked={theme === 'dark'}
+                        onChange={() => toggleTheme(theme === 'dark' ? 'light' : 'dark')}
+                    />
+                    <Sun className="swap-off"/>
+                    <Moon className="swap-on"/>
+                </label>
                 <div className="dropdown dropdown-end">
-                    <div tabIndex={0} role="button" className="btn btn-ghost btn-circle avatar">
-                        <div className="w-10 rounded-full">
-                            <img
-                                alt="User avatar"
-                                src="https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp"
-                            />
-                        </div>
+                    <div tabIndex={0} role="button" className="btn btn-ghost avatar">
+                        <User/>
                     </div>
                     {renderUserMenu()}
                 </div>
