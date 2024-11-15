@@ -5,7 +5,7 @@ const recordSchema = new Schema({
     _id: {type: String, default: () => uuidv4()},
     userId: { type: String, ref: 'User', required: true },
     fileId: { type: String, ref: 'File', required: true },
-    action: { type: String, enum: ['ocr', 'answer', 'summarize'], required: true },
+    action: { type: String, enum: ['ocr', 'answer', 'summary'], required: true },
     result: { type: String, required: true, trim: true },
     timestamp: { type: Date, default: Date.now }
 });

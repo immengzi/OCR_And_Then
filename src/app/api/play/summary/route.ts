@@ -1,6 +1,6 @@
-import {NextRequest, NextResponse} from 'next/server';
+import {NextRequest, NextResponse} from "next/server";
 import {AppError} from "@/lib/types/errors";
-import {OpenAI} from 'openai';
+import OpenAI from 'openai';
 import {recordsRepository} from "@/server/repositories/records-repo";
 import {withErrorHandler} from "@/server/middleware/api-utils";
 
@@ -15,7 +15,7 @@ export async function POST(req: NextRequest) {
         const stream = new TransformStream();
         const writer = stream.writable.getWriter();
 
-        generateAnswer(content, model, writer, userId, fileId);
+        generateSummary(content, model, writer, userId, fileId);
 
         return new NextResponse(stream.readable, {
             headers: {
@@ -27,44 +27,44 @@ export async function POST(req: NextRequest) {
     });
 }
 
-async function generateAnswer(content: string, gptApiModel: string, writer: WritableStreamDefaultWriter, userId: string, fileId: string) {
+async function generateSummary(content: string, gptApiModel: string, writer: WritableStreamDefaultWriter, userId: string, fileId: string) {
     try {
         const gptClient = new OpenAI({
             baseURL: process.env.GPT_API_URL || '',
             apiKey: process.env.GPT_API_KEY || ''
         });
 
-        const buildAnswerPrompt = process.env.BUILD_ANSWER_PROMPT || '';
-        const buildAnswerTxt = buildAnswerPrompt + '\n' + content;
+        const buildSummaryPrompt = process.env.BUILD_SUMMARY_PROMPT || '';
+        const buildSummaryTxt = buildSummaryPrompt + '\n' + content;
         let fullResult = '';
 
-        const answerStream = await gptClient.chat.completions.create({
+        const summaryStream = await gptClient.chat.completions.create({
             model: gptApiModel,
-            messages: [{role: 'user', content: buildAnswerTxt}],
+            messages: [{ role: 'user', content: buildSummaryTxt }],
             stream: true
         });
 
         const encoder = new TextEncoder();
 
-        for await (const chunk of answerStream) {
+        for await (const chunk of summaryStream) {
             const content = chunk.choices[0]?.delta?.content || '';
             if (content) {
                 fullResult += content;
-                await writer.write(encoder.encode(`data: ${JSON.stringify({content})}\n\n`));
+                await writer.write(encoder.encode(`data: ${JSON.stringify({ content })}\n\n`));
             }
         }
 
         await recordsRepository.create({
             userId,
             fileId,
-            action: 'answer',
+            action: 'summary',
             result: fullResult
         });
     } catch (error) {
-        console.error('Error in generateAnswer:', error);
+        console.error('Error in generateSummary:', error);
         // 确保错误也被传递给客户端
         const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
-        await writer.write(new TextEncoder().encode(`data: ${JSON.stringify({error: errorMessage})}\n\n`));
+        await writer.write(new TextEncoder().encode(`data: ${JSON.stringify({ error: errorMessage })}\n\n`));
     } finally {
         await writer.close();
     }

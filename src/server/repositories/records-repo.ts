@@ -1,8 +1,8 @@
 import {Record} from '@/server/db/models';
-import {IRecord} from "@/lib/types/IRecord";
+import {ICreateRecord, IRecord} from "@/lib/types/IRecord";
 
 export class RecordsRepository {
-    async create(recordData: IRecord): Promise<IRecord> {
+    async create(recordData: ICreateRecord): Promise<IRecord> {
         const record = new Record(recordData);
         return record.save();
     }

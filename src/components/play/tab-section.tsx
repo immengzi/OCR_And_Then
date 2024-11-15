@@ -6,21 +6,23 @@ import {usePlay} from "@/hooks/use-play";
 const tabs = [
     {id: 'ocr', label: 'OCR'},
     {id: 'answer', label: 'Answer'},
-    {id: 'summarize', label: 'Summary'}
+    {id: 'summary', label: 'Summary'}
 ] as const;
 
 export const TabSection = () => {
     const {currentTab, contents, isOcrCompleted, setTab, setContent} = usePlayStore();
-    const {answer, summarize} = usePlay();
+    const {answer, summary} = usePlay();
     const {theme} = useTheme();
 
     const handleTabClick = async (tab: typeof tabs[number]['id']) => {
         if (tab !== 'ocr' && !isOcrCompleted) return;
         const ocrResult = contents['ocr'];
-        if (tab === 'answer') {
+        if (tab === 'answer' && contents['answer'] === '') {
             await answer(ocrResult);
-        } else if (tab === 'summarize') {
-            await summarize(ocrResult);
+        } else if (tab === 'summary' && contents['summary'] === '') {
+            await summary(ocrResult);
+        } else {
+            setTab(tab);
         }
     };
 

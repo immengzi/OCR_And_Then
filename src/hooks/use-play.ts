@@ -15,9 +15,11 @@ export const usePlay = () => {
     const {showLoading, hideLoading} = useLoadingStore();
     const {
         file,
+        model,
         setFile,
         setTab,
         setContent,
+        setModel,
         setOcrCompleted,
         setDisplayMode,
         resetPlay
@@ -51,9 +53,8 @@ export const usePlay = () => {
             if (!response.ok) {
                 throw AppError.BadRequest();
             }
-
-            const fileInfo: IFile = result;
-            setFile(fileInfo);
+            const _file: IFile = result.file;
+            setFile(_file);
             setTab('ocr');
             showSuccess('Upload successful');
             return true;
@@ -64,7 +65,7 @@ export const usePlay = () => {
 
     const ocr = useErrorHandler(async (ocrFormData: OcrFormData) => {
         clearAlert();
-        showLoading('Processing OCR...');
+        showLoading('Performing OCR...');
 
         if (!file || !user) {
             throw AppError.BadRequest('File or user not found');
@@ -82,11 +83,12 @@ export const usePlay = () => {
         });
 
         if (!response.ok) {
-            throw AppError.BadRequest('OCR processing failed');
+            throw AppError.BadRequest('OCR performing failed');
         }
 
         setDisplayMode('tabs');
         setTab('ocr');
+        setModel(ocrFormData.model);
         hideLoading();
 
         await handleStreamResponse(response, (content) => {
@@ -94,14 +96,82 @@ export const usePlay = () => {
         });
 
         setOcrCompleted(true);
-        showSuccess('OCR processing successful');
+        showSuccess('OCR performing successful');
         return true;
     });
 
     const answer = useErrorHandler(async (ocrResult: string) => {
+        clearAlert();
+        showLoading('Generating answer...');
+
+        if (!user || !file) {
+            throw AppError.BadRequest('User or file not found');
+        }
+
+        const response = await fetch('/api/play/answer', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                content: ocrResult,
+                model: model,
+                userId: user._id,
+                fileId: file._id
+            })
+        });
+
+        if (!response.ok) {
+            throw AppError.BadRequest('Answer performing failed');
+        }
+
+        setDisplayMode('tabs');
+        setTab('answer');
+        hideLoading();
+
+        await handleStreamResponse(response, (content) => {
+            setContent('answer', content);
+        });
+
+        showSuccess('Answer performing successful');
+        return true;
     });
 
-    const summarize = useErrorHandler(async (ocrResult: string) => {
+    const summary = useErrorHandler(async (ocrResult: string) => {
+        clearAlert();
+        showLoading('Generating summary...');
+
+        if (!user || !file) {
+            throw AppError.BadRequest('User or file not found');
+        }
+
+        const response = await fetch('/api/play/summary', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                content: ocrResult,
+                model: model,
+                userId: user._id,
+                fileId: file?._id
+            })
+        });
+
+        if (!response.ok) {
+            throw AppError.BadRequest('Summary performing failed');
+        }
+
+        setDisplayMode('tabs');
+        setTab('summary');
+        hideLoading();
+
+        await handleStreamResponse(response, (content) => {
+            setContent('summary', content);
+        });
+
+        showSuccess('Summary performing successful');
+        return true;
     });
 
     async function handleStreamResponse(
@@ -113,7 +183,7 @@ export const usePlay = () => {
         let accumulatedContent = '';
 
         if (!reader) {
-            throw AppError.BadRequest('Response body is not readable');
+            throw AppError.BadRequest('Invalid response body');
         }
 
         try {
@@ -126,21 +196,12 @@ export const usePlay = () => {
 
                 for (const line of lines) {
                     if (line.startsWith('data: ')) {
-                        const data = line.slice(6).trim();
-
-                        if (data === '[DONE]') {
-                            return accumulatedContent;
-                        }
-
-                        const parsedData = JSON.parse(data);
-
-                        if (parsedData.error) {
-                            throw AppError.ServerError(parsedData.error);
-                        }
-
-                        if (parsedData.content) {
-                            accumulatedContent += parsedData.content;
-                            onData(parsedData.content);
+                        try {
+                            const data = JSON.parse(line.slice(6));
+                            accumulatedContent += data.content;
+                            onData(accumulatedContent);
+                        } catch (e) {
+                            console.error('Error parsing SSE data:', e);
                         }
                     }
                 }
@@ -156,6 +217,6 @@ export const usePlay = () => {
         upload,
         ocr,
         answer,
-        summarize
+        summary
     };
 }

@@ -101,10 +101,7 @@ export async function POST(request: NextRequest) {
 
         return NextResponse.json({
             message: 'File uploaded successfully',
-            file: {
-                fileName: iFile.name,
-                uploadedAt: iFile.uploadedAt
-            }
+            file: iFile
         });
     });
 }
