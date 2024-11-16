@@ -1,48 +1,111 @@
 import {create} from 'zustand';
+import {MD5} from 'crypto-js';
 
-interface ContentCache {
+interface CacheEntry {
+    hash: string;
     answer: string;
     summary: string;
+    timestamp: number;
 }
 
 interface PlayState {
     input: string;
     result: string;
     file: File | null;
-    contentCache: ContentCache;
+    cache: Map<string, CacheEntry>;
+    currentHash: string | null;
 }
 
 interface PlayActions {
     setInput: (content: string) => void;
     setResult: (content: string) => void;
     setFile: (file: File | null) => void;
-    updateCache: (type: keyof ContentCache, content: string) => void;
+    updateCache: (type: 'answer' | 'summary', content: string) => void;
+    checkCache: (type: 'answer' | 'summary') => string | null;
     clearCache: () => void;
     resetAll: () => void;
 }
+
+const CACHE_SIZE = 10;
 
 const initialState: PlayState = {
     input: '',
     result: '',
     file: null,
-    contentCache: {
-        answer: '',
-        summary: ''
-    }
+    cache: new Map(),
+    currentHash: null
 };
 
-export const usePlayStore = create<PlayState & PlayActions>((set) => ({
+export const usePlayStore = create<PlayState & PlayActions>((set, get) => ({
     ...initialState,
-    setInput: (content: string) => set({input: content}),
+
+    setInput: (content: string) => {
+        const hash = MD5(content.trim()).toString();
+        set({
+            input: content,
+            currentHash: hash
+        });
+    },
+
     setResult: (content: string) => set({result: content}),
+
     setFile: (file: File | null) => set({file}),
-    updateCache: (type: keyof ContentCache, content: string) =>
-        set((state) => ({
-            contentCache: {
-                ...state.contentCache,
-                [type]: content
+
+    updateCache: (type: 'answer' | 'summary', content: string) => {
+        const state = get();
+        const hash = state.currentHash;
+
+        if (!hash) return;
+
+        set((state) => {
+            const cache = new Map(state.cache);
+            let entry = cache.get(hash) || {
+                hash,
+                answer: '',
+                summary: '',
+                timestamp: Date.now()
+            };
+
+            entry = {
+                ...entry,
+                [type]: content,
+                timestamp: Date.now()
+            };
+
+            // 删除最旧的条目（如果缓存已满）
+            if (cache.size >= CACHE_SIZE && !cache.has(hash)) {
+                let oldest = Date.now();
+                let oldestHash = '';
+
+                cache.forEach((entry, key) => {
+                    if (entry.timestamp < oldest) {
+                        oldest = entry.timestamp;
+                        oldestHash = key;
+                    }
+                });
+
+                if (oldestHash) {
+                    cache.delete(oldestHash);
+                }
             }
-        })),
-    clearCache: () => set({contentCache: initialState.contentCache}),
+
+            cache.set(hash, entry);
+
+            return {cache};
+        });
+    },
+
+    checkCache: (type: 'answer' | 'summary'): string | null => {
+        const state = get();
+        if (!state.currentHash) return null;
+
+        const entry = state.cache.get(state.currentHash);
+        if (!entry) return null;
+
+        return entry[type] || null;
+    },
+
+    clearCache: () => set({cache: new Map()}),
+
     resetAll: () => set(initialState)
 }));

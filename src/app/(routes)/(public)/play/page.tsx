@@ -14,7 +14,6 @@ export default function Play() {
     const {
         input,
         result,
-        contentCache,
         setInput,
         setResult,
         updateCache,
@@ -49,21 +48,12 @@ export default function Play() {
             return;
         }
 
-        if (contentCache.answer && contentCache.answer === result) {
-            return;
-        }
-
         await answer(input);
     };
 
     const handleSummary = async () => {
         if (!input.trim()) {
             showWarning('Please input content first');
-            return;
-        }
-
-        // Check cache first
-        if (contentCache.summary && contentCache.summary === result) {
             return;
         }
 

@@ -11,7 +11,7 @@ export const usePlay = () => {
     const {user} = useAuth();
     const {showSuccess, clearAlert} = useAlert();
     const {showLoading, hideLoading} = useLoadingStore();
-    const {file, setFile, setInput, setResult} = usePlayStore();
+    const {file, checkCache, updateCache, setFile, setInput, setResult} = usePlayStore();
 
     const upload = useErrorHandler(async (file: File): Promise<string | null> => {
         clearAlert();
@@ -95,6 +95,12 @@ export const usePlay = () => {
     });
 
     const answer = useErrorHandler(async (content: string): Promise<string | null> => {
+        const cachedResult = checkCache('answer');
+        if (cachedResult) {
+            setResult(cachedResult);
+            return cachedResult;
+        }
+
         clearAlert();
         showLoading('Generating answer...');
 
@@ -122,11 +128,18 @@ export const usePlay = () => {
         const result = await handleStreamResponse(response, (content) => {
             setResult(content);
         });
+        updateCache('answer', result);
         showSuccess('Answer generated successfully');
         return result;
     });
 
     const summary = useErrorHandler(async (content: string): Promise<string | null> => {
+        const cachedResult = checkCache('summary');
+        if (cachedResult) {
+            setResult(cachedResult);
+            return cachedResult;
+        }
+
         clearAlert();
         showLoading('Generating summary...');
 
@@ -154,6 +167,7 @@ export const usePlay = () => {
         const result = await handleStreamResponse(response, (content) => {
             setResult(content);
         });
+        updateCache('summary', result);
         showSuccess('Summary generated successfully');
         return result;
     });
