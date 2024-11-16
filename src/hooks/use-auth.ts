@@ -115,6 +115,48 @@ export const useAuth = () => {
         }
     });
 
+    interface UpdatePasswordData {
+        currentPassword: string;
+        newPassword: string;
+    }
+
+    const updateUsername = async (newUsername: string) => {
+        if (!user?._id) throw new Error('User not authenticated');
+
+        const response = await fetch(`/api/auth/update/${user._id}`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                type: 'username',
+                newUsername
+            })
+        });
+
+        if (!response.ok) {
+            throw AppError.BadRequest('Failed to update username');
+        }
+
+        const { user: updatedUser } = await response.json();
+        setUser(updatedUser);
+    };
+
+    const updatePassword = async (data: UpdatePasswordData) => {
+        if (!user?._id) throw new Error('User not authenticated');
+
+        const response = await fetch(`/api/auth/update/${user._id}`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                type: 'password',
+                ...data
+            })
+        });
+
+        if (!response.ok) {
+            throw AppError.BadRequest('Failed to update password');
+        }
+    };
+
     return {
         user: user,
         isAuthenticated: !!user,
@@ -122,6 +164,8 @@ export const useAuth = () => {
         login,
         register,
         logout,
-        validateSession
+        validateSession,
+        updateUsername,
+        updatePassword
     }
 }
