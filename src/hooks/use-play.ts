@@ -104,7 +104,7 @@ export const usePlay = () => {
         clearAlert();
         showLoading('Generating answer...');
 
-        if (!user || !file) {
+        if (!user) {
             throw AppError.BadRequest('User or file not found');
         }
 
@@ -143,7 +143,7 @@ export const usePlay = () => {
         clearAlert();
         showLoading('Generating summary...');
 
-        if (!user || !file) {
+        if (!user) {
             throw AppError.BadRequest('User or file not found');
         }
 
