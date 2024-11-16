@@ -11,8 +11,8 @@ export class RecordsRepository {
         return Record.find();
     }
 
-    async findByUserId(userId: string): Promise<IRecord | null> {
-        return Record.findOne({userId});
+    async findByUserId(userId: string): Promise<IRecord[]> {
+        return Record.find({userId});
     }
 
     async findByFileId(fileId: string): Promise<IRecord | null> {

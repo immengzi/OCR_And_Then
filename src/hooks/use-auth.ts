@@ -123,7 +123,7 @@ export const useAuth = () => {
     const updateUsername = async (newUsername: string) => {
         if (!user?._id) throw new Error('User not authenticated');
 
-        const response = await fetch(`/api/auth/update/${user._id}`, {
+        const response = await fetch(`/api/user/update/${user._id}`, {
             method: 'PATCH',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -143,7 +143,7 @@ export const useAuth = () => {
     const updatePassword = async (data: UpdatePasswordData) => {
         if (!user?._id) throw new Error('User not authenticated');
 
-        const response = await fetch(`/api/auth/update/${user._id}`, {
+        const response = await fetch(`/api/user/update/${user._id}`, {
             method: 'PATCH',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
