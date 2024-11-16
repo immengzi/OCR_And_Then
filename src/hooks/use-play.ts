@@ -1,6 +1,4 @@
-import {IFile} from "@/lib/types/IFile";
 import {AppError} from "@/lib/types/errors";
-import {OcrFormData} from "@/lib/types";
 import {useLoadingStore} from "@/store/slices/loading-slice";
 import {usePlayStore} from "@/store/slices/play-slice";
 import {useAuth} from "@/hooks/use-auth";
@@ -13,69 +11,70 @@ export const usePlay = () => {
     const {user} = useAuth();
     const {showSuccess, clearAlert} = useAlert();
     const {showLoading, hideLoading} = useLoadingStore();
-    const {
-        file,
-        model,
-        setFile,
-        setTab,
-        setContent,
-        setModel,
-        setOcrCompleted,
-        setDisplayMode,
-        resetPlay
-    } = usePlayStore();
+    const {file, setFile, setInput, setResult} = usePlayStore();
 
-    const upload = useErrorHandler(async (file: File) => {
+    const upload = useErrorHandler(async (file: File): Promise<string | null> => {
         clearAlert();
-        resetPlay();
         showLoading('Uploading file...');
 
-        try {
-            if (!user) {
-                showLoading('Please login first...');
-                await new Promise(resolve => setTimeout(resolve, 1500));
-                hideLoading();
-                router.push('/login');
-                return false;
-            }
-
-            const formData = new FormData();
-            formData.append('file', file);
-            formData.append('userId', user._id);
-
-            const response = await fetch('/api/play/upload', {
-                method: 'POST',
-                body: formData
-            });
-
-            const result = await response.json();
-
-            if (!response.ok) {
-                throw AppError.BadRequest();
-            }
-            const _file: IFile = result.file;
-            setFile(_file);
-            setTab('ocr');
-            showSuccess('Upload successful');
-            return true;
-        } finally {
+        if (!user) {
+            showLoading('Please login first...');
+            await new Promise(resolve => setTimeout(resolve, 1500));
             hideLoading();
+            router.push('/login');
+            return null;
         }
-    });
 
-    const ocr = useErrorHandler(async (ocrFormData: OcrFormData) => {
-        clearAlert();
-        showLoading('Performing OCR...');
-
-        if (!file || !user) {
-            throw AppError.BadRequest('File or user not found');
+        if (!file) {
+            throw AppError.BadRequest('File not found');
         }
+
+        setFile(file);
 
         const form = new FormData();
-        if (ocrFormData.file) {
-            form.append('file', ocrFormData.file, ocrFormData.file.name);
+        form.append('file', file);
+        form.append('userId', user._id);
+
+        const response = await fetch('/api/play/upload', {
+            method: 'POST',
+            body: form
+        });
+
+        if (!response.ok) {
+            throw AppError.BadRequest('Upload failed');
         }
-        form.append('model', ocrFormData.model);
+
+        const result = await response.json();
+        const filePath = result.file.path;
+
+        showLoading('Upload successful');
+        return filePath;
+    });
+
+    const ocr = useErrorHandler(async (file: File): Promise<string | null> => {
+        const filePath = await upload(file);
+        if (!filePath) {
+            return null;
+        }
+
+        if (!user) {
+            showLoading('Please login first...');
+            await new Promise(resolve => setTimeout(resolve, 1500));
+            hideLoading();
+            router.push('/login');
+            return null;
+        }
+
+        if (!file) {
+            throw AppError.BadRequest('File not found');
+        }
+
+        showLoading('Performing OCR...');
+
+        const form = new FormData();
+        form.append('file', file);
+        form.append('userId', user._id);
+        form.append('filePath', filePath);
 
         const response = await fetch('/api/play/ocr', {
             method: 'POST',
@@ -86,21 +85,16 @@ export const usePlay = () => {
             throw AppError.BadRequest('OCR performing failed');
         }
 
-        setDisplayMode('tabs');
-        setTab('ocr');
-        setModel(ocrFormData.model);
         hideLoading();
 
-        await handleStreamResponse(response, (content) => {
-            setContent('ocr', content);
+        const result = await handleStreamResponse(response, (content) => {
+            setInput(content);
         });
-
-        setOcrCompleted(true);
         showSuccess('OCR performing successful');
-        return true;
+        return result;
     });
 
-    const answer = useErrorHandler(async (ocrResult: string) => {
+    const answer = useErrorHandler(async (content: string): Promise<string | null> => {
         clearAlert();
         showLoading('Generating answer...');
 
@@ -114,10 +108,8 @@ export const usePlay = () => {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-                content: ocrResult,
-                model: model,
-                userId: user._id,
-                fileId: file._id
+                content,
+                userId: user._id
             })
         });
 
@@ -125,19 +117,16 @@ export const usePlay = () => {
             throw AppError.BadRequest('Answer performing failed');
         }
 
-        setDisplayMode('tabs');
-        setTab('answer');
         hideLoading();
 
-        await handleStreamResponse(response, (content) => {
-            setContent('answer', content);
+        const result = await handleStreamResponse(response, (content) => {
+            setResult(content);
         });
-
-        showSuccess('Answer performing successful');
-        return true;
+        showSuccess('Answer generated successfully');
+        return result;
     });
 
-    const summary = useErrorHandler(async (ocrResult: string) => {
+    const summary = useErrorHandler(async (content: string): Promise<string | null> => {
         clearAlert();
         showLoading('Generating summary...');
 
@@ -151,10 +140,8 @@ export const usePlay = () => {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-                content: ocrResult,
-                model: model,
-                userId: user._id,
-                fileId: file?._id
+                content,
+                userId: user._id
             })
         });
 
@@ -162,16 +149,13 @@ export const usePlay = () => {
             throw AppError.BadRequest('Summary performing failed');
         }
 
-        setDisplayMode('tabs');
-        setTab('summary');
         hideLoading();
 
-        await handleStreamResponse(response, (content) => {
-            setContent('summary', content);
+        const result = await handleStreamResponse(response, (content) => {
+            setResult(content);
         });
-
-        showSuccess('Summary performing successful');
-        return true;
+        showSuccess('Summary generated successfully');
+        return result;
     });
 
     async function handleStreamResponse(
@@ -214,7 +198,6 @@ export const usePlay = () => {
     }
 
     return {
-        upload,
         ocr,
         answer,
         summary

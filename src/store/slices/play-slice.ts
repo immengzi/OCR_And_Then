@@ -1,54 +1,48 @@
-import {create} from "zustand";
-import {IFile} from "@/lib/types/IFile";
+import {create} from 'zustand';
+
+interface ContentCache {
+    answer: string;
+    summary: string;
+}
 
 interface PlayState {
-    file: IFile | null;
-    displayMode: 'upload' | 'tabs';
-    currentTab: 'ocr' | 'answer' | 'summary';
-    contents: {
-        ocr: string;
-        answer: string;
-        summary: string;
-    };
-    model: string;
-    isOcrCompleted: boolean;
+    input: string;
+    result: string;
+    file: File | null;
+    contentCache: ContentCache;
 }
 
 interface PlayActions {
-    setFile: (file: IFile | null) => void;
-    setDisplayMode: (mode: PlayState['displayMode']) => void;
-    setTab: (tab: PlayState['currentTab']) => void;
-    setContent: (tab: PlayState['currentTab'], content: string) => void;
-    setModel: (model: string) => void;
-    setOcrCompleted: (completed: boolean) => void;
-    resetPlay: () => void;
+    setInput: (content: string) => void;
+    setResult: (content: string) => void;
+    setFile: (file: File | null) => void;
+    updateCache: (type: keyof ContentCache, content: string) => void;
+    clearCache: () => void;
+    resetAll: () => void;
 }
 
 const initialState: PlayState = {
+    input: '',
+    result: '',
     file: null,
-    displayMode: 'upload',
-    currentTab: 'ocr',
-    contents: {
-        ocr: '',
+    contentCache: {
         answer: '',
         summary: ''
-    },
-    model: 'gpt-4o-mini',
-    isOcrCompleted: false
+    }
 };
 
 export const usePlayStore = create<PlayState & PlayActions>((set) => ({
     ...initialState,
-    setFile: (file) => set({file}),
-    setDisplayMode: (displayMode) => set({displayMode}),
-    setTab: (currentTab) => set({currentTab}),
-    setContent: (tab, content) => set((state) => ({
-        contents: {
-            ...state.contents,
-            [tab]: content
-        }
-    })),
-    setModel: (model) => set({model}),
-    setOcrCompleted: (isOcrCompleted) => set({isOcrCompleted}),
-    resetPlay: () => set(initialState)
+    setInput: (content: string) => set({input: content}),
+    setResult: (content: string) => set({result: content}),
+    setFile: (file: File | null) => set({file}),
+    updateCache: (type: keyof ContentCache, content: string) =>
+        set((state) => ({
+            contentCache: {
+                ...state.contentCache,
+                [type]: content
+            }
+        })),
+    clearCache: () => set({contentCache: initialState.contentCache}),
+    resetAll: () => set(initialState)
 }));

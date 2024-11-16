@@ -1,6 +1,7 @@
 import {NextRequest, NextResponse} from "next/server";
 import {AppError} from "@/lib/types/errors";
 import OpenAI from 'openai';
+import {recordsRepository} from "@/server/repositories/records-repo";
 import {withErrorHandler} from "@/server/middleware/api-utils";
 
 export async function POST(req: NextRequest) {
@@ -12,7 +13,8 @@ export async function POST(req: NextRequest) {
 
         const formData = await req.formData();
         const file = formData.get('file');
-        const model = formData.get('model') as string;
+        const userId = formData.get('userId') as string;
+        const filePath = formData.get('filePath') as string;
 
         if (!file || !(file instanceof File)) {
             throw AppError.NotFound('File not found or invalid file type');
@@ -23,7 +25,7 @@ export async function POST(req: NextRequest) {
         const stream = new TransformStream();
         const writer = stream.writable.getWriter();
 
-        formatOCR(ocrResult, model, writer);
+        formatOCR(userId, filePath, ocrResult, writer);
 
         return new NextResponse(stream.readable, {
             headers: {
@@ -35,13 +37,15 @@ export async function POST(req: NextRequest) {
     });
 }
 
-async function formatOCR(ocrResult: string, gptApiModel: string, writer: WritableStreamDefaultWriter) {
+async function formatOCR(userId: string, filePath: string, ocrResult: string, writer: WritableStreamDefaultWriter) {
     const gptClient = new OpenAI({
         baseURL: process.env.GPT_API_URL || '',
         apiKey: process.env.GPT_API_KEY || ''
     });
     const buildOcrPrompt = process.env.BUILD_OCR_PROMPT || '';
     const buildOcrTxt = buildOcrPrompt + '\n' + ocrResult;
+    const gptApiModel = process.env.GPT_API_MODEL || '';
+    let fullResult = '';
 
     const buildOcrStream = await gptClient.chat.completions.create({
         model: gptApiModel,
@@ -54,9 +58,17 @@ async function formatOCR(ocrResult: string, gptApiModel: string, writer: Writabl
     for await (const chunk of buildOcrStream) {
         const content = chunk.choices[0]?.delta?.content || '';
         if (content) {
+            fullResult += content;
             await writer.write(encoder.encode(`data: ${JSON.stringify({ content })}\n\n`));
         }
     }
+
+    await recordsRepository.create({
+        userId,
+        action: 'ocr',
+        input: filePath,
+        result: fullResult
+    });
 
     await writer.close();
 }
@@ -139,27 +151,5 @@ async function getAccessToken() {
 
 async function getFileContentAsBase64ByFile(file: File): Promise<string> {
     const buffer = Buffer.from(await file.arrayBuffer());
-    return buffer.toString('base64');
-}
-
-async function getFileContentAsBase64ByFilePath(url: string): Promise<string> {
-    if (!url || !url.startsWith('http')) {
-        throw AppError.BadRequest('Invalid URL format');
-    }
-
-    const response = await fetch(url);
-
-    if (!response.ok) {
-        throw AppError.ServerError(`Failed to fetch file: ${response.status} ${response.statusText}`);
-    }
-
-    const contentType = response.headers.get('content-type');
-    if (!contentType) {
-        console.warn('Content-Type header is missing');
-    }
-
-    const arrayBuffer = await response.arrayBuffer();
-    const buffer = Buffer.from(arrayBuffer);
-
     return buffer.toString('base64');
 }

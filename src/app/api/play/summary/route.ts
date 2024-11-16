@@ -6,7 +6,7 @@ import {withErrorHandler} from "@/server/middleware/api-utils";
 
 export async function POST(req: NextRequest) {
     return withErrorHandler(async () => {
-        const {content, model, userId, fileId} = await req.json();
+        const {content, userId} = await req.json();
 
         if (!content) {
             throw AppError.BadRequest('Content is required');
@@ -15,7 +15,7 @@ export async function POST(req: NextRequest) {
         const stream = new TransformStream();
         const writer = stream.writable.getWriter();
 
-        generateSummary(content, model, writer, userId, fileId);
+        generateSummary(content, writer, userId);
 
         return new NextResponse(stream.readable, {
             headers: {
@@ -27,7 +27,7 @@ export async function POST(req: NextRequest) {
     });
 }
 
-async function generateSummary(content: string, gptApiModel: string, writer: WritableStreamDefaultWriter, userId: string, fileId: string) {
+async function generateSummary(content: string, writer: WritableStreamDefaultWriter, userId: string) {
     try {
         const gptClient = new OpenAI({
             baseURL: process.env.GPT_API_URL || '',
@@ -36,6 +36,7 @@ async function generateSummary(content: string, gptApiModel: string, writer: Wri
 
         const buildSummaryPrompt = process.env.BUILD_SUMMARY_PROMPT || '';
         const buildSummaryTxt = buildSummaryPrompt + '\n' + content;
+        const gptApiModel = process.env.GPT_API_MODEL || '';
         let fullResult = '';
 
         const summaryStream = await gptClient.chat.completions.create({
@@ -56,8 +57,8 @@ async function generateSummary(content: string, gptApiModel: string, writer: Wri
 
         await recordsRepository.create({
             userId,
-            fileId,
             action: 'summary',
+            input: content,
             result: fullResult
         });
     } catch (error) {
