@@ -14,7 +14,7 @@ export default function Navbar() {
         await logout();
     }
 
-    const renderNavigationLinksMoblie = () => (
+    const renderNavigationLinksMobile = () => (
         NAVIGATION_CONFIG.links.map(link => (
             <li key={link.label}>
                 <Link href={link.href}>{link.label}</Link>
@@ -82,7 +82,7 @@ export default function Navbar() {
                     </div>
                     <ul tabIndex={0}
                         className="menu dropdown-content rounded-box z-[1] mt-3 w-32 p-2 shadow bg-base-100">
-                        {renderNavigationLinksMoblie()}
+                        {renderNavigationLinksMobile()}
                     </ul>
                 </div>
                 <Link href={'/'} className="btn btn-ghost text-xl">TestpaperAuto</Link>

@@ -2,6 +2,7 @@ import React from "react";
 import type {Metadata} from "next";
 import "../styles/globals.css";
 import Navbar from "@/components/layout/Navbar";
+import SessionValidator from "@/components/layout/SessionValidator";
 import Footer from "@/components/layout/Footer";
 import {ThemeProvider} from "@/context/ThemeContext";
 import {cookies} from "next/headers";
@@ -33,6 +34,7 @@ export default function RootLayout({children}: Readonly<{ children: React.ReactN
     return (
         <html lang="zh" data-theme={theme}>
         <body className="flex flex-col">
+        <SessionValidator/>
         <ThemeProvider theme={theme}>
             <nav>
                 <Navbar/>
