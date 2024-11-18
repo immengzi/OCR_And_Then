@@ -146,7 +146,7 @@ export default function Play() {
             <div className="divider"/>
             <textarea
                 className="w-full bg-base-200 p-2 rounded"
-                rows={30}
+                rows={18}
                 value={result}
                 onChange={(e) => setResult(e.target.value)}
                 placeholder="Result will appear here..."

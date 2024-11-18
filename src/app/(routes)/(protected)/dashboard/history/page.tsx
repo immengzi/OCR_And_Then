@@ -42,7 +42,7 @@ const History = () => {
     };
 
     return (
-        <div className="drawer lg:drawer-open">
+        <div className="drawer lg:drawer-open bg-base-100">
             <input id="my-drawer-2" type="checkbox" className="drawer-toggle"/>
 
             <div className="drawer-content flex flex-col p-4">
@@ -59,16 +59,16 @@ const History = () => {
                     <div className="w-full max-w-4xl mx-auto">
                         {selectedRecord ? (
                             <div className="space-y-4">
-                                <div className="bg-base-100 rounded-lg shadow p-6">
+                                <div className="bg-base-200 rounded-lg shadow p-6">
                                     <div className="flex justify-between items-center mb-4">
                                         <h2 className="text-xl font-semibold">{selectedRecord.action}</h2>
                                         <span className="text-sm text-base-content/60">
-                      {formatTimestamp(selectedRecord.timestamp)}
-                    </span>
+                                            {formatTimestamp(selectedRecord.timestamp)}
+                                        </span>
                                     </div>
 
                                     <div className="space-y-4">
-                                        <div className="bg-base-200 p-4 rounded-lg">
+                                        <div className="bg-base-300 p-4 rounded-lg">
                                             <div className="flex items-center gap-2 mb-2">
                                                 <MessageSquare className="text-primary" size={20}/>
                                                 <h3 className="font-medium">User Input</h3>
@@ -76,7 +76,7 @@ const History = () => {
                                             {renderInput(selectedRecord.input)}
                                         </div>
 
-                                        <div className="bg-base-200 p-4 rounded-lg">
+                                        <div className="bg-base-300 p-4 rounded-lg">
                                             <div className="flex items-center gap-2 mb-2">
                                                 <Bot className="text-secondary" size={20}/>
                                                 <h3 className="font-medium">Assistant Response</h3>
@@ -98,8 +98,8 @@ const History = () => {
 
             <div className="drawer-side">
                 <label htmlFor="my-drawer-2" aria-label="close sidebar" className="drawer-overlay"></label>
-                <div className="bg-base-200 w-80 min-h-full p-4">
-                    <div className="flex items-center gap-2 mb-4">
+                <div className="bg-base-100 border-r border-base-300 w-80 min-h-full p-4">
+                    <div className="flex items-center gap-2 mb-4 pl-2">
                         <Clock className="text-base-content/70"/>
                         <h2 className="text-lg font-semibold">History Records</h2>
                     </div>
@@ -116,12 +116,13 @@ const History = () => {
                                     <button
                                         onClick={() => handleRecordClick(record)}
                                         className={`w-full p-3 text-left rounded-lg transition-colors duration-200 
-                      ${selectedRecord?._id === record._id
+                ${selectedRecord?._id === record._id
                                             ? 'bg-primary/10 border border-primary/30'
-                                            : 'hover:bg-base-300'}`}
+                                            : 'hover:bg-base-200'}`}
                                     >
-                                        <div className="font-medium text-base-content truncate">
-                                            {record.action}
+                                        <div className="font-medium text-base-content flex items-baseline gap-1">
+                                            <span className="font-bold whitespace-nowrap">{record.action}: </span>
+                                            <span className="truncate">{record.input}</span>
                                         </div>
                                         <div className="text-sm text-gray-500">
                                             {formatTimestamp(record.timestamp)}
