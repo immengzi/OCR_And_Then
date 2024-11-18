@@ -15,7 +15,7 @@ export const useHistory = () => {
         }
 
         const {history} = await response.json();
-        return history;
+        return history.reverse();
     };
     return {
         getHistory

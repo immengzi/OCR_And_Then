@@ -158,9 +158,7 @@ export const useAuth = () => {
     };
 
     return {
-        user: user,
-        isAuthenticated: !!user,
-        isAdmin: user?.role === 'Admin',
+        user,
         login,
         register,
         logout,
