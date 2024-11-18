@@ -11,7 +11,7 @@ export const usePlay = () => {
     const {user} = useAuth();
     const {showSuccess, clearAlert} = useAlert();
     const {showLoading, hideLoading} = useLoadingStore();
-    const {file, checkCache, updateCache, setFile, setInput, setResult} = usePlayStore();
+    const {checkCache, updateCache, setFile, setInput, setResult} = usePlayStore();
 
     const upload = useErrorHandler(async (file: File): Promise<string | null> => {
         clearAlert();
@@ -94,33 +94,34 @@ export const usePlay = () => {
         return result;
     });
 
-    const answer = useErrorHandler(async (content: string): Promise<string | null> => {
-        const cachedResult = checkCache('answer');
+    const chat = useErrorHandler(async (prompt_type: string, content: string): Promise<string | null> => {
+        const cachedResult = checkCache(prompt_type);
         if (cachedResult) {
             setResult(cachedResult);
             return cachedResult;
         }
 
         clearAlert();
-        showLoading('Generating answer...');
+        showLoading('Generating chat...');
 
         if (!user) {
             throw AppError.BadRequest('User or file not found');
         }
 
-        const response = await fetch('/api/play/answer', {
+        const response = await fetch('/api/play/chat', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
+                prompt_type,
                 content,
                 userId: user._id
             })
         });
 
         if (!response.ok) {
-            throw AppError.BadRequest('Answer performing failed');
+            throw AppError.BadRequest('Chat generating failed');
         }
 
         hideLoading();
@@ -128,47 +129,8 @@ export const usePlay = () => {
         const result = await handleStreamResponse(response, (content) => {
             setResult(content);
         });
-        updateCache('answer', result);
-        showSuccess('Answer generated successfully');
-        return result;
-    });
-
-    const summary = useErrorHandler(async (content: string): Promise<string | null> => {
-        const cachedResult = checkCache('summary');
-        if (cachedResult) {
-            setResult(cachedResult);
-            return cachedResult;
-        }
-
-        clearAlert();
-        showLoading('Generating summary...');
-
-        if (!user) {
-            throw AppError.BadRequest('User or file not found');
-        }
-
-        const response = await fetch('/api/play/summary', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                content,
-                userId: user._id
-            })
-        });
-
-        if (!response.ok) {
-            throw AppError.BadRequest('Summary performing failed');
-        }
-
-        hideLoading();
-
-        const result = await handleStreamResponse(response, (content) => {
-            setResult(content);
-        });
-        updateCache('summary', result);
-        showSuccess('Summary generated successfully');
+        updateCache(prompt_type, result);
+        showSuccess('Chat generating successful');
         return result;
     });
 
@@ -213,7 +175,6 @@ export const usePlay = () => {
 
     return {
         ocr,
-        answer,
-        summary
+        chat
     };
 }

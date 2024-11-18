@@ -5,7 +5,7 @@ export default function Footer() {
                 <p>
                     Copyright © {new Date().getFullYear()} - All right reserved by Little ńg Ltd
                 </p>
-                <a href="https://github.com/immengzi/TestpaperAuto">
+                <a href="https://github.com/immengzi/OCR_And_Then">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
                          className="bi bi-github" viewBox="0 0 16 16">
                         <path

@@ -1,7 +1,7 @@
 English | [简体中文](./README-zh.md)
 
-# TestpaperAuto
+# OCR And Then
 
 ## Introduction
 
-An exam paper automation tool that uses OCR to obtain the structured content of exam paper files and selects subsequent processing steps to generate results.
+Obtain text from OCR files or input directly, select specific scenarios or default prompts to chat with the LLM.

@@ -8,9 +8,7 @@ export default function Help() {
             content: [
                 {
                     question: "What is this website?",
-                    answer: `This is a third-party AI application designed to process low-quality examination papers through OCR technology or engage in direct text-based conversations with LLMs (Large Language Models) to help users achieve their desired outcomes.
-
-Currently, custom prompts are not supported, but we're excited to announce that this feature will be launching soon.`
+                    answer: `This is a third-party AI application designed to process various low-quality files using OCR technology, or engage in text-based conversations directly with LLM (Large Language Models) to help users achieve their desired outcomes.`
                 }
             ]
         },

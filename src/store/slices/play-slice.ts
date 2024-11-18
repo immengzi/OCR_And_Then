@@ -3,8 +3,7 @@ import {MD5} from 'crypto-js';
 
 interface CacheEntry {
     hash: string;
-    answer: string;
-    summary: string;
+    [action: string]: string | number | undefined; // 动态存储 action 数据
     timestamp: number;
 }
 
@@ -20,8 +19,8 @@ interface PlayActions {
     setInput: (content: string) => void;
     setResult: (content: string) => void;
     setFile: (file: File | null) => void;
-    updateCache: (type: 'answer' | 'summary', content: string) => void;
-    checkCache: (type: 'answer' | 'summary') => string | null;
+    updateCache: (action: string, content: string) => void;
+    checkCache: (action: string) => string | null;
     clearCache: () => void;
     resetAll: () => void;
 }
@@ -33,7 +32,7 @@ const initialState: PlayState = {
     result: '',
     file: null,
     cache: new Map(),
-    currentHash: null
+    currentHash: null,
 };
 
 export const usePlayStore = create<PlayState & PlayActions>((set, get) => ({
@@ -43,7 +42,7 @@ export const usePlayStore = create<PlayState & PlayActions>((set, get) => ({
         const hash = MD5(content.trim()).toString();
         set({
             input: content,
-            currentHash: hash
+            currentHash: hash,
         });
     },
 
@@ -51,7 +50,7 @@ export const usePlayStore = create<PlayState & PlayActions>((set, get) => ({
 
     setFile: (file: File | null) => set({file}),
 
-    updateCache: (type: 'answer' | 'summary', content: string) => {
+    updateCache: (action: string, content: string) => {
         const state = get();
         const hash = state.currentHash;
 
@@ -61,15 +60,13 @@ export const usePlayStore = create<PlayState & PlayActions>((set, get) => ({
             const cache = new Map(state.cache);
             let entry = cache.get(hash) || {
                 hash,
-                answer: '',
-                summary: '',
-                timestamp: Date.now()
+                timestamp: Date.now(),
             };
 
             entry = {
                 ...entry,
-                [type]: content,
-                timestamp: Date.now()
+                [action]: content, // 动态设置 action 数据
+                timestamp: Date.now(),
             };
 
             // 删除最旧的条目（如果缓存已满）
@@ -95,17 +92,17 @@ export const usePlayStore = create<PlayState & PlayActions>((set, get) => ({
         });
     },
 
-    checkCache: (type: 'answer' | 'summary'): string | null => {
+    checkCache: (action: string): string | null => {
         const state = get();
         if (!state.currentHash) return null;
 
         const entry = state.cache.get(state.currentHash);
         if (!entry) return null;
 
-        return entry[type] || null;
+        return (entry[action] as string) || null; // 检查动态 action 数据
     },
 
     clearCache: () => set({cache: new Map()}),
 
-    resetAll: () => set(initialState)
+    resetAll: () => set(initialState),
 }));

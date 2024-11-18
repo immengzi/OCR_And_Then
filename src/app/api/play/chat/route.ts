@@ -6,7 +6,7 @@ import {withErrorHandler} from "@/server/middleware/api-utils";
 
 export async function POST(req: NextRequest) {
     return withErrorHandler(async () => {
-        const {content, userId} = await req.json();
+        const {prompt_type, content, userId} = await req.json();
 
         if (!content) {
             throw AppError.BadRequest('Content is required');
@@ -15,7 +15,7 @@ export async function POST(req: NextRequest) {
         const stream = new TransformStream();
         const writer = stream.writable.getWriter();
 
-        generateAnswer(content, writer, userId);
+        chat(prompt_type, content, writer, userId);
 
         return new NextResponse(stream.readable, {
             headers: {
@@ -27,21 +27,30 @@ export async function POST(req: NextRequest) {
     });
 }
 
-async function generateAnswer(content: string, writer: WritableStreamDefaultWriter, userId: string) {
+async function chat(prompt_type: string, content: string, writer: WritableStreamDefaultWriter, userId: string) {
     try {
         const gptClient = new OpenAI({
             baseURL: process.env.GPT_API_URL || '',
             apiKey: process.env.GPT_API_KEY || ''
         });
 
-        const buildAnswerPrompt = process.env.BUILD_ANSWER_PROMPT || '';
-        const buildAnswerTxt = buildAnswerPrompt + '\n' + content;
         const gptApiModel = process.env.GPT_API_MODEL || '';
         let fullResult = '';
 
+        let prompt = '';
+        if (prompt_type === 'ebook') {
+            prompt = process.env.BUILD_EBOOK_PROMPT || '';
+        } else if (prompt_type === 'test_paper') {
+            prompt = process.env.BUILD_TEST_PROMPT || '';
+        } else if (prompt_type === 'default') {
+            prompt = process.env.BUILD_DEFAULT_PROMPT || '';
+        }
+
+        const chatContent = prompt + '\n' + content;
+
         const answerStream = await gptClient.chat.completions.create({
             model: gptApiModel,
-            messages: [{role: 'user', content: buildAnswerTxt}],
+            messages: [{role: 'user', content: chatContent}],
             stream: true
         });
 
@@ -57,12 +66,12 @@ async function generateAnswer(content: string, writer: WritableStreamDefaultWrit
 
         await recordsRepository.create({
             userId,
-            action: 'answer',
+            action: prompt_type,
             input: content,
             result: fullResult
         });
     } catch (error) {
-        console.error('Error in generateAnswer:', error);
+        console.error('Error during chat:', error);
         // 确保错误也被传递给客户端
         const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
         await writer.write(new TextEncoder().encode(`data: ${JSON.stringify({error: errorMessage})}\n\n`));

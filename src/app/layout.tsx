@@ -10,8 +10,8 @@ import {Alert} from "@/components/ui/Alert";
 import {init} from './init';
 
 export const metadata: Metadata = {
-    title: "TestpaperAuto",
-    description: "An exam paper automation tool that uses OCR to obtain the structured content of exam paper files and selects subsequent processing steps to generate results.",
+    title: "OCR And Then",
+    description: "A Next.js web application for OCR and more operations.",
     icons: [
         {
             rel: 'icon',

@@ -6,16 +6,16 @@ export default function Page() {
             <div className="hero-content text-center">
                 <div className="max-w-md">
                     <h1 className="mb-6 text-5xl font-bold">
-                        TestpaperAuto
+                        OCR And Then
                     </h1>
                     <ul className="steps steps-vertical lg:steps-horizontal">
-                        <li className="step step-primary">test paper</li>
-                        <li className="step step-primary">json</li>
-                        <li className="step step-primary">question</li>
-                        <li className="step step-primary">answer</li>
+                        <li className="step step-primary">file</li>
+                        <li className="step step-primary">ocr</li>
+                        <li className="step step-primary">prompt</li>
+                        <li className="step step-primary">result</li>
                     </ul>
                     <p className="py-6">
-                        An exam paper automation tool that uses OCR to obtain the structured content of exam paper files and selects subsequent processing steps to generate results.
+                        Obtain text from OCR files or input directly, select specific scenarios or default prompts to chat with the LLM.
                     </p>
                     <Link href={'/play'}>
                         <button className="btn btn-primary">

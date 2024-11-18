@@ -85,7 +85,9 @@ export default function Navbar() {
                         {renderNavigationLinksMobile()}
                     </ul>
                 </div>
-                <Link href={'/'} className="btn btn-ghost text-xl">TestpaperAuto</Link>
+                <Link href={'/'} className="btn btn-ghost text-xl">
+                    OCR And Then
+                </Link>
             </div>
 
             {/* PC */}

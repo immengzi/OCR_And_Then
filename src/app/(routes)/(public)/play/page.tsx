@@ -3,12 +3,12 @@
 import {ChangeEvent} from 'react';
 import {usePlayStore} from "@/store/slices/play-slice";
 import {useLoadingStore} from "@/store/slices/loading-slice";
-import {Copy, Download, Eraser, PencilLine, RotateCcw, StickyNote, Upload} from 'lucide-react';
+import {Book, Copy, Download, Eraser, MessageCircle, RotateCcw, SquarePen, Upload} from 'lucide-react';
 import {usePlay} from "@/hooks/use-play";
 import {useAlert} from "@/hooks/use-alert";
 
 export default function Play() {
-    const {ocr, answer, summary} = usePlay();
+    const {ocr, chat} = usePlay();
     const {showWarning} = useAlert();
     const {showLoading, hideLoading} = useLoadingStore();
     const {
@@ -42,26 +42,16 @@ export default function Play() {
         setResult('');
     };
 
-    const handleAnswer = async () => {
+    const handleChat = async (prompt_type: string) => {
         if (!input.trim()) {
             showWarning('Please input content first');
             return;
         }
-
-        await answer(input);
-    };
-
-    const handleSummary = async () => {
-        if (!input.trim()) {
-            showWarning('Please input content first');
-            return;
-        }
-
-        showLoading('Generating summary...');
-        const _summary = await summary(input);
-        if (_summary) {
-            setResult(_summary);
-            updateCache('summary', _summary);
+        showLoading('Answering question...');
+        const _result = await chat(prompt_type, input);
+        if (_result) {
+            setResult(_result);
+            updateCache('prompt_type', _result);
         }
         hideLoading();
     };
@@ -113,14 +103,19 @@ export default function Play() {
                     </div>
                 </div>
                 <div className="flex gap-4">
-                    <div className="tooltip" data-tip="Answer question">
-                        <button onClick={handleAnswer} className="btn btn-ghost btn-sm">
-                            <PencilLine/>
+                    <div className="tooltip" data-tip="Recognize e-books">
+                        <button onClick={() => handleChat('ebook')} className="btn btn-ghost btn-sm">
+                            <Book/>
                         </button>
                     </div>
-                    <div className="tooltip" data-tip="Generate summary">
-                        <button onClick={handleSummary} className="btn btn-ghost btn-sm">
-                            <StickyNote/>
+                    <div className="tooltip" data-tip="Do the test questions">
+                        <button onClick={() => handleChat('test_paper')} className="btn btn-ghost btn-sm">
+                            <SquarePen/>
+                        </button>
+                    </div>
+                    <div className="tooltip" data-tip="Custom chat">
+                        <button onClick={() => handleChat('default')} className="btn btn-ghost btn-sm">
+                            <MessageCircle/>
                         </button>
                     </div>
                 </div>
